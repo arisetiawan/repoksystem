@@ -1,0 +1,284 @@
+START
+
+VIRTUAL
+
+vkol0101		DFLOAT 8		kodtype = "BYR1" ? rkpdf1 : 0	
+vkol0102		DFLOAT 8		kodtype = "BYR1" ? rkpdf2 : 0	
+vkol0103		DFLOAT 8		kodtype = "BYR1" ? rkpdf8 : 0	
+vkol0104		DFLOAT 8		kodtype = "BYR1" ? rkpdf3 : 0	
+vkol0105		DFLOAT 8		kodtype = "BYR1" ? kodjml : 0	
+vkol0106		DFLOAT 8		kodtype = "BYR1" ? rkpdf4 : 0	
+vkol0107		DFLOAT 8		kodtype = "BYR1" ? rkpdf5 : 0	
+vkol0108		DFLOAT 8		kodtype = "BYR1" ? kodtotal : 0	
+					
+vkol0201		DFLOAT 8		kodtype = "BYR2" ? rkpdf1 : 0	
+vkol0202		DFLOAT 8		kodtype = "BYR2" ? rkpdf2 : 0	
+vkol0203		DFLOAT 8		kodtype = "BYR2" ? rkpdf8 : 0	
+vkol0204		DFLOAT 8		kodtype = "BYR2" ? rkpdf3 : 0	
+vkol0205		DFLOAT 8		kodtype = "BYR2" ? kodjml : 0	
+vkol0206		DFLOAT 8		kodtype = "BYR2" ? rkpdf4 : 0	
+vkol0207		DFLOAT 8		kodtype = "BYR2" ? rkpdf5 : 0	
+vkol0208		DFLOAT 8		kodtype = "BYR2" ? kodtotal : 0	
+					
+vkol0301		DFLOAT 8		kodtype = "BYR3" ? rkpdf1 : 0	
+vkol0302		DFLOAT 8		kodtype = "BYR3" ? rkpdf2 : 0	
+vkol0303		DFLOAT 8		kodtype = "BYR3" ? rkpdf8 : 0	
+vkol0304		DFLOAT 8		kodtype = "BYR3" ? rkpdf3 : 0	
+vkol0305		DFLOAT 8		kodtype = "BYR3" ? kodjml : 0	
+vkol0306		DFLOAT 8		kodtype = "BYR3" ? rkpdf4 : 0	
+vkol0307		DFLOAT 8		kodtype = "BYR3" ? rkpdf5 : 0	
+vkol0308		DFLOAT 8		kodtype = "BYR3" ? kodtotal : 0	
+					
+vkol0401		DFLOAT 8		kodtype = "BYR4" ? rkpdf1 : 0	
+vkol0402		DFLOAT 8		kodtype = "BYR4" ? rkpdf2 : 0	
+vkol0403		DFLOAT 8		kodtype = "BYR4" ? rkpdf8 : 0	
+vkol0404		DFLOAT 8		kodtype = "BYR4" ? rkpdf3 : 0	
+vkol0405		DFLOAT 8		kodtype = "BYR4" ? kodjml : 0	
+vkol0406		DFLOAT 8		kodtype = "BYR4" ? rkpdf4 : 0	
+vkol0407		DFLOAT 8		kodtype = "BYR4" ? rkpdf5 : 0	
+vkol0408		DFLOAT 8		kodtype = "BYR4" ? kodtotal : 0	
+					
+vkol0501		DFLOAT 8		kodtype = "STN1" ? rkpdf1 : 0	
+vkol0502		DFLOAT 8		kodtype = "STN1" ? rkpdf2 : 0	
+vkol0503		DFLOAT 8		kodtype = "STN1" ? rkpdf8 : 0	
+vkol0504		DFLOAT 8		kodtype = "STN1" ? rkpdf3 : 0	
+vkol0505		DFLOAT 8		kodtype = "STN1" ? kodjml : 0	
+vkol0506		DFLOAT 8		kodtype = "STN1" ? rkpdf4 : 0	
+vkol0507		DFLOAT 8		kodtype = "STN1" ? rkpdf5 : 0	
+vkol0508		DFLOAT 8		kodtype = "STN1" ? kodtotal : 0	
+					
+vkol0601		DFLOAT 8		kodtype = "STN0" ? rkpdf1 : 0	
+vkol0602		DFLOAT 8		kodtype = "STN0" ? rkpdf2 : 0	
+vkol0603		DFLOAT 8		kodtype = "STN0" ? rkpdf8 : 0	
+vkol0604		DFLOAT 8		kodtype = "STN0" ? rkpdf3 : 0	
+vkol0605		DFLOAT 8		kodtype = "STN0" ? kodjml : 0	
+vkol0606		DFLOAT 8		kodtype = "STN0" ? rkpdf4 : 0	
+vkol0607		DFLOAT 8		kodtype = "STN0" ? rkpdf5 : 0	
+vkol0608		DFLOAT 8		kodtype = "STN0" ? kodtotal : 0	
+					
+vkol0701		DFLOAT 8		kodtype = "POS" ? rkpdf1 : 0	
+vkol0702		DFLOAT 8		kodtype = "POS" ? rkpdf2 : 0	
+vkol0703		DFLOAT 8		kodtype = "POS" ? rkpdf8 : 0	
+vkol0704		DFLOAT 8		kodtype = "POS" ? rkpdf3 : 0	
+vkol0705		DFLOAT 8		kodtype = "POS" ? kodjml : 0	
+vkol0706		DFLOAT 8		kodtype = "POS" ? rkpdf4 : 0	
+vkol0707		DFLOAT 8		kodtype = "POS" ? rkpdf5 : 0	
+vkol0708		DFLOAT 8		kodtype = "POS" ? kodtotal : 0	
+					
+vkol0801		DFLOAT 8		kodtype = "BNS" ? rkpdf1 : 0	
+vkol0802		DFLOAT 8		kodtype = "BNS" ? rkpdf2 : 0	
+vkol0803		DFLOAT 8		kodtype = "BNS" ? rkpdf8 : 0	
+vkol0804b		DFLOAT 8		kodtype = "BNS" AND rkpkdtgk = "Z2" ? rkpdf4 : 0
+vkol0804a		DFLOAT 8		kodtype = "BNS" AND rkpkdtgk <> "Z2" ? rkpdf3 : 0
+vkol0804		DFLOAT 8 		vkol0804a + vkol0804b
+vkol0805		DFLOAT 8		kodtype = "BNS" ? kodjml : 0	
+vkol0806		DFLOAT 8		kodtype = "BNS" ? rkpdf4 : 0	
+vkol0807		DFLOAT 8		kodtype = "BNS" ? rkpdf5 : 0	
+vkol0808		DFLOAT 8		kodtype = "BNS" ? kodtotal : 0	
+
+vkol0901		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf1 : 0		
+vkol0902		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf2 : 0		
+vkol0903		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf8 : 0		
+vkol0904		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf3 : 0		
+vkol0905		DFLOAT 8		kodtype = "POTZ1Z2" ? kodjml : 0		
+vkol0906		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf4 : 0		
+vkol0907		DFLOAT 8		kodtype = "POTZ1Z2" ? rkpdf5 : 0		
+vkol0908		DFLOAT 8		kodtype = "POTZ1Z2" ? kodtotal : 0		
+
+
+
+
+
+
+vrkptype	STRING	14	"KOLEK1106     "
+vnip		STRING	10	kodkode
+vrkpkdtgk	STRING	10	kodkdtgk
+vrkpkodeclc	STRING	10	kodtype
+vrkptype2	STRING	10	kodtype
+vblanks		STRING	20	"                    "
+vrkptype2a	STRING	31	vrkptype2 # vblanks
+vgabung		STRING	76	vrkptype # vnip # vrkpkdtgk # vrkpkodeclc # vrkptype2a	
+vpil1		STRING	3	kodkdtgk = "Z1" OR kodkdtgk = "Z2" OR kodkdtgk = "Z4" OR kodkdtgk = "Z6" ? rkpdlr : "ALL"
+vgab1  		STRING	3	vpil1
+vgab2   	STRING	3	"KOL"
+vgab3		STRING	2	kodkdtgk = "Z1" OR kodkdtgk = "Z2" OR kodkdtgk = "Z4" OR kodkdtgk = "Z6" ? rkpkdtgk : "Z7"
+vgab4		STRING	23	"                       "
+vpkjkode	STRING	32	vgab1 # vgab2 # vgab3 # vgab4
+
+
+
+SEARCH
+FILE "kod.dat" ALL 
+FILE "kym.dat" JTN "kod.dat" BY_FIELD kodkode USING_KEY kymnipidx
+FILE "cab.dat" JTN "kym.dat" BY_FIELD kymcabskr USING_KEY cabnoidx
+FILE "rkp.dat" JTN "kod.dat" BY_FIELD vgabung USING_KEY rkptynipdlr
+FILE "pkj.dat" JTN "kod.dat" BY_FIELD vpkjkode USING_KEY pkjkodidx
+
+SELECT
+(kodtype = "BYR1" OR 
+kodtype = "BYR2" OR 
+kodtype = "BYR3" OR 
+kodtype = "BYR4" OR 
+kodtype = "STN1" OR 
+kodtype = "STN0" OR 
+kodtype = "POS" OR 
+kodtype = "BNS" OR
+kodtype = "POTZ1Z2") AND
+(kodkdtgk = "X7" OR kodkdtgk = "XA")
+AND cabnoexp <> 13
+
+
+
+CONTROL 
+1 kymcabskr
+2 kodkode
+3 kodkdtgk
+4 kodtype
+5 cabnama
+6 kymnama
+7 pkjnobbm
+ 
+
+SORT USING_KEY
+NO_MOD  kymcabskr
+NO_MOD  kodkode
+NO_MOD  kodkdtgk
+NO_MOD	kodtype
+
+ACCUMULATOR
+a0		SUM		vkol0101		/*	0	*/
+a1		SUM		vkol0101		/*	1	*/
+a2		SUM		vkol0102		/*	2	*/
+a3		SUM		vkol0103		/*	3	*/
+a4		SUM		vkol0104		/*	4	*/
+a5		SUM		vkol0105		/*	5	*/
+a6		SUM		vkol0106		/*	6	*/
+a7		SUM		vkol0107		/*	7	*/
+a8		SUM		vkol0108		/*	8	*/
+								
+a9		SUM		vkol0201		/*	9	*/
+a10		SUM		vkol0202		/*	10	*/
+a11		SUM		vkol0203		/*	11	*/
+a12		SUM		vkol0204		/*	12	*/
+a13		SUM		vkol0205		/*	13	*/
+a14		SUM		vkol0206		/*	14	*/
+a15		SUM		vkol0207		/*	15	*/
+a16		SUM		vkol0208		/*	16	*/
+								
+a17		SUM		vkol0301		/*	17	*/
+a18		SUM		vkol0302		/*	18	*/
+a19		SUM		vkol0303		/*	19	*/
+a20		SUM		vkol0304		/*	20	*/
+a21		SUM		vkol0305		/*	21	*/
+a22		SUM		vkol0306		/*	22	*/
+a23		SUM		vkol0307		/*	23	*/
+a24		SUM		vkol0308		/*	24	*/
+								
+a25		SUM		vkol0401		/*	25	*/
+a26		SUM		vkol0402		/*	26	*/
+a27		SUM		vkol0403		/*	27	*/
+a28		SUM		vkol0404		/*	28	*/
+a29		SUM		vkol0405		/*	29	*/
+a30		SUM		vkol0406		/*	30	*/
+a31		SUM		vkol0407		/*	31	*/
+a32		SUM		vkol0408		/*	32	*/
+								
+a33		SUM		vkol0501		/*	33	*/
+a34		SUM		vkol0502		/*	34	*/
+a35		SUM		vkol0503		/*	35	*/
+a36		SUM		vkol0504		/*	36	*/
+a37		SUM		vkol0505		/*	37	*/
+a38		SUM		vkol0506		/*	38	*/
+a39		SUM		vkol0507		/*	39	*/
+a40		SUM		vkol0508		/*	40	*/
+								
+a41		SUM		vkol0601		/*	41	*/
+a42		SUM		vkol0602		/*	42	*/
+a43		SUM		vkol0603		/*	43	*/
+a44		SUM		vkol0604		/*	44	*/
+a45		SUM		vkol0605		/*	45	*/
+a46		SUM		vkol0606		/*	46	*/
+a47		SUM		vkol0607		/*	47	*/
+a48		SUM		vkol0608		/*	48	*/
+								
+a49		SUM		vkol0701		/*	49	*/
+a50		SUM		vkol0702		/*	50	*/
+a51		SUM		vkol0703		/*	51	*/
+a52		SUM		vkol0704		/*	52	*/
+a53		SUM		vkol0705		/*	53	*/
+a54		SUM		vkol0706		/*	54	*/
+a55		SUM		vkol0707		/*	55	*/
+a56		SUM		vkol0708		/*	56	*/
+								
+a57		SUM		vkol0801		/*	57	*/
+a58		SUM		vkol0802		/*	58	*/
+a59		SUM		vkol0803		/*	59	*/
+a60		SUM		vkol0804		/*	60	*/
+a61		SUM		vkol0805		/*	61	*/
+a62		SUM		vkol0806		/*	62	*/
+a63		SUM		vkol0807		/*	63	*/
+a64		SUM		vkol0808		/*	64	*/
+
+a65		SUM		vkol0901		/*	65	*/
+a66		SUM		vkol0902		/*	66	*/
+a67		SUM		vkol0903		/*	67	*/
+a68		SUM		vkol0904		/*	68	*/
+a69		SUM		vkol0905		/*	69	*/
+a70		SUM		vkol0906		/*	70	*/
+a71		SUM		vkol0907		/*	71	*/
+a72		SUM		vkol0908		/*	72	*/
+
+
+
+DISPLAY
+     	DEVICE         r_dev
+     	PAGE_LENGTH    33
+     	THOUSAND_SEPARATOR PERIOD
+     	DECIMAL_POINT COMMA
+     	SCREEN_LINES   24
+        SETFONT0    27 15
+        SETFONT1    18
+
+IMAGE
+
+REPORT_HDR    
++ Komisi
++ Tanggal : @xxxxxxxxxxxx
+g_tgltrn
++REMEDIAL P345 (X7) DAN DIATAS ZA(XA)
++/---------t----------------------t---------t----------------------t----------t----------t----------t----------t----------t----------t----------t----------t------------------t------------------t------------------\
++| DEALER  | NAMA DEALER          |  NIP    | NAMA KARYAWAN        |   USIA   | TYPE BYR | CAPAI DLR| CAPAI PRB|   BYR2   |RUMUS KAT |  UNIT X  | RP X     |  RUPIAH TARGET   |    RUPIAH CAPAI  |   RP KOMISI      |
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|----------|----------|----------|------------------|------------------|------------------|
+CONTROL_FTR(3)
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| BYR1     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]                   
+A[1,3]	A[2,3]	A[3,3]	C[7]  A[4,3]	A[5,3]	A[6,3]	A[7,3]	A[8,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| BYR2     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]                  
+A[9,3]	A[10,3]	A[11,3]	C[7]  A[12,3]	A[13,3]	A[14,3]	A[15,3]	A[16,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| BYR3     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]                 
+A[17,3]	A[18,3]	A[19,3]	C[7]  A[20,3]	A[21,3]	A[22,3]	A[23,3]	A[24,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| BYR4     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]                
+A[25,3]	A[26,3]	A[27,3]	C[7]  A[28,3]	A[29,3]	A[30,3]	A[31,3]	A[32,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| STN1     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]               
+A[33,3]	A[34,3]	A[35,3]	C[7]  A[36,3]	A[37,3]	A[38,3]	A[39,3]	A[40,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| STN0     | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]              
+A[41,3]	A[42,3]	A[43,3]	C[7]  A[44,3]	A[45,3]	A[46,3]	A[47,3]	A[48,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| POS      | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]             
+A[49,3]	A[50,3]	A[51,3]	C[7]  A[52,3]	A[53,3]	A[54,3]	A[55,3]	A[56,3]
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx| BNS      | @999.00  | @9999.00 |@999999999|@xxxxxxxxx|@999999999|@9,9999999|@9,999999999999999|@9,999999999999999|@9,999999999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]            
+A[57,3]	A[58,3]	A[59,3]	C[7]  A[60,3]	A[61,3]	A[62,3]	A[63,3]	A[64,3]
+CONTROL_FTR(2)
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|----------|----------|----------|------------------|------------------|------------------|
+CONTROL_FTR(1)
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|----------|----------|----------|------------------|------------------|------------------|
+REPORT_FTR
++\---------.----------------------.---------.----------------------.----------.----------.----------.----------.----------.----------.----------.----------.------------------.------------------.------------------/
++
+EXIT

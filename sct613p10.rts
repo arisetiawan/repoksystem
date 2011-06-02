@@ -1,0 +1,103 @@
+START
+
+VIRTUAL
+
+vkol0101		DFLOAT 8		kodtype = "BNS" ? rkpdf1 : 0	
+vkol0102		DFLOAT 8		kodtype = "BNS" ? rkpdf2 : 0	
+vkol0103		DFLOAT 8		kodtype = "BNS" ? rkpdf8 : 0	
+vkol0104		DFLOAT 8		kodtype = "BNS" ? rkpdf3 : 0	
+vkol0105		DFLOAT 8		kodtype = "BNS" ? kodjml : 0	
+vkol0106		DFLOAT 8		kodtype = "BNS" ? rkpdf4 : 0	
+vkol0107		DFLOAT 8		kodtype = "BNS" ? rkpdf5 : 0	
+vkol0108		DFLOAT 8		kodtype = "BNS" ? kodtotal : 0	
+					
+
+vrkptype	STRING	14	"KOLEK1106     "
+vnip		STRING	10	kodkode
+vrkpkdtgk	STRING	10	kodkdtgk
+vrkpkodeclc	STRING	10	kodtype
+vrkptype2	STRING	10	kodtype
+vblanks		STRING	20	"                    "
+vrkptype2a	STRING	31	vrkptype2 # vblanks
+vgabung		STRING	76	vrkptype # vnip # vrkpkdtgk # vrkpkodeclc # vrkptype2a	
+vpil1		STRING	3	kodkdtgk = "Z1" OR kodkdtgk = "Z2" OR kodkdtgk = "Z4" OR kodkdtgk = "Z6" ? rkpdlr : "ALL"
+vgab1  		STRING	3	vpil1
+vgab2   	STRING	3	"KOL"
+vgab3		STRING	2	kodkdtgk = "Z1" OR kodkdtgk = "Z2" OR kodkdtgk = "Z4" OR kodkdtgk = "Z6" ? rkpkdtgk : "Z7"
+vgab4		STRING	23	"                       "
+vpkjkode	STRING	32	vgab1 # vgab2 # vgab3 # vgab4
+
+
+
+SEARCH
+FILE "kod.dat" ALL 
+FILE "kym.dat" JTN "kod.dat" BY_FIELD kodkode USING_KEY kymnipidx
+FILE "cab.dat" JTN "kym.dat" BY_FIELD kymcabskr USING_KEY cabnoidx
+FILE "rkp.dat" JTN "kod.dat" BY_FIELD vgabung USING_KEY rkptynipdlr
+FILE "pkj.dat" JTN "kod.dat" BY_FIELD vpkjkode USING_KEY pkjkodidx
+
+
+SELECT
+kodnobuk = "KOLEK1106" AND kodtype >= "TT01" AND kodtype <= "TT31" AND cabnoexp <> 13
+
+CONTROL 
+1 kymcabskr
+2 kodkode
+3 kodkdtgk
+4 kodtype
+5 cabnama
+6 kymnama
+7 pkjnobbm
+ 
+
+SORT USING_KEY
+NO_MOD  kymcabskr
+NO_MOD  kodkode
+NO_MOD  kodkdtgk
+NO_MOD	kodtype
+
+ACCUMULATOR
+a0		SUM		vkol0101		/*	0	*/
+a1		SUM		kodjml
+a2		SUM		rkpdf2		/*	2	*/
+a3		SUM		kodtotal		/*	3	*/
+a4		SUM		vkol0104		/*	4	*/
+a5		SUM		vkol0105		/*	5	*/
+a6		SUM		vkol0106		/*	6	*/
+a7		SUM		vkol0107		/*	7	*/
+a8		SUM		vkol0108		/*	8	*/
+								
+
+
+
+DISPLAY
+     	DEVICE         r_dev
+     	PAGE_LENGTH    33
+     	THOUSAND_SEPARATOR PERIOD
+     	DECIMAL_POINT COMMA
+     	SCREEN_LINES   24
+        SETFONT0    27 15
+        SETFONT1    18
+
+IMAGE
+
+REPORT_HDR    
++ Komisi
++ Tanggal : @xxxxxxxxxxxx
+g_tgltrn
++ BONUS PIUTANG                  
++/---------t----------------------t---------t----------------------t----------t----------t----------t----------t----------\
++| DEALER  | NAMA DEALER          |  NIP    | NAMA KARYAWAN        |   USIA   | TGL TGH  | JMLH TGH | % CAPAI  |  RP TOTAL|
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|
+CONTROL_FTR(4)
++|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxx|@xxxxxxxxxxxxxxxxxxxxx|@xxxxxxxxx|@xxxxxxxxx|@9,9999999|@9,9999.00|@999999999|
+C[1]         C[5]	          C[2]       C[6]                  C[3]        C[4]           
+A[1,4]	A[2,4]	A[3,4]	
+CONTROL_FTR(2)
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|
+CONTROL_FTR(1)
++|---------|----------------------|---------|----------------------|----------|----------|----------|----------|----------|
+REPORT_FTR
++\---------.----------------------.---------.----------------------.----------.----------.----------.----------.----------/
++
+EXIT

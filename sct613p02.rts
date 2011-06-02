@@ -1,0 +1,72 @@
+START
+
+VIRTUAL
+
+vbayar1		DFLOAT	8	rmdkode3 = "BYR1" ? rmdtotal1 : 0
+vbayar2		DFLOAT	8	rmdkode3 = "BYR2" ? rmdtotal1 : 0
+vbayar3		DFLOAT	8	rmdkode3 = "BYR3" ? rmdtotal1 : 0
+vbayar4		DFLOAT	8	rmdkode3 = "BYR4" ? rmdtotal1 : 0
+vbayar5		DFLOAT	8	rmdkode3 = "STN1" ? rmdtotal1 : 0
+vbayar6		DFLOAT	8	rmdkode3 = "STN0" ? rmdtotal1 : 0
+vbayar7		DFLOAT	8	rmdkode3 = "POS" ? rmdtotal1 : 0
+
+
+SEARCH
+FILE "rmd.dat" ALL 
+
+CONTROL 
+1 rmdkode
+2 rmdbts1
+3 rmdbts2
+4 rmdbts3
+
+SORT USING_KEY
+NO_MOD  rmdkode
+NO_MOD  rmdbts1
+NO_MOD  rmdbts2
+NO_MOD  rmdbts3
+
+ACCUMULATOR
+a00		SUM		vbayar1
+a01		SUM		vbayar1
+a02		SUM		vbayar2
+a03		SUM		vbayar3
+a04		SUM		vbayar4
+a05		SUM		vbayar5
+a06		SUM		vbayar6
+a07		SUM		vbayar7
+
+
+DISPLAY
+     	DEVICE         r_dev
+     	PAGE_LENGTH    33
+     	THOUSAND_SEPARATOR PERIOD
+     	DECIMAL_POINT COMMA
+     	SCREEN_LINES   24
+        SETFONT0    27 15
+        SETFONT1    18
+
+IMAGE
+
+REPORT_HDR    
++ Komisi
++ Tanggal : @xxxxxxxxxxxx
+g_tgltrn
++
++/-----------------------------------------------------------------------\
++|      ATURAN KOMISI KOLEKTOR @xxxxxxxxxxxxxxxxxxx                      |
+C[1]
++|                                                                       |
++|---------t----------t-----------t-----------t-----------t--------------|
++| TYPE KOM| ALIR DLR | ALIR PRIB | BATAS 3   | KODE BYR  |  RUPIAH      |
++|---------|----------|-----------|-----------|-----------|--------------|
+BODY
++|@xxxxxxxx|@9,9999.00|@9,99999.00|@9,99999999|@xxxxxxxxxx|@9,99999999999|
+  rmdkode   rmdbts1    rmdbts2     rmdbts3     rmdkode3     rmdtotal1
+CONTROL_FTR(3)
++|---------|----------|-----------|-----------|-----------|--------------|
+REPORT_FTR
++\---------.----------.-----------.-----------.-----------.--------------/
+
+
+EXIT
