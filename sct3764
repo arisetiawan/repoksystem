@@ -1,0 +1,104 @@
+SCREEN 3764  APP_TYPE Gabung Z1Z2 Reward MINGGUAN
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lthbl		STRING		5
+lrkptype	STRING		15
+lclctype2		STRING		15
+lrkpdf3			DFLOAT		8
+ltypebayar		STRING		11
+
+
+DBCALCS(djoinkym)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kymnipidx	rkpnip
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3764              _________________________________                 @DATE
+   ===MEMPROSES BAYAR KE BERAPA UNTUK DIJADIKAN BATASAN=====================
+          Pilihan    : __                      Periode Komisi : _____
+          Typebayar  : __________
+          Pencapaian : ________ sd _________ 
+          ___________                          
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+   lthbl		 PROTECT QPROTECT		INPUTRI		2
+   ltypebayar		 NOCHANGE			INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          4
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          5
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		6
+
+
+DEFAULTS(master)
+lrkptype		INIT		"KOLEK1105"
+ltypebayar		DFALT_SCAN	BYR1
+					BYR2
+					BYR3
+					BYR4
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________   _________ __________ 
+
+FIELDS(trans)
+rkptype       	NOCHANGE        INPUTRI 1
+rkpnip		PROTECT SCROLL	INPUTRI	2
+rkpkodeclc	PROTECT SCROLL	INPUTRI	3
+
+CALCS()
+c0			0
+cstr15			(lpil == 1 && djoinkym == 1 && rkpkodeclc == ltypebayar && (rkpkdtgk == "Z1" || rkpkdtgk == "Z2" || rkpkdtgk == "Z4" || rkpkdtgk == "Z6" || rkpkdtgk == "Z7" || rkpkdtgk == "Z8" || rkpkdtgk == "Z9")) || (lpil == 2 && rkpkodeclc == ltypebayar && (rkpkdtgk != "Z0" && rkpkdtgk != "Z1" && rkpkdtgk != "Z2" && rkpkdtgk != "Z4" && rkpkdtgk != "Z6" && rkpkdtgk != "Z7" && rkpkdtgk != "Z8" && rkpkdtgk != "Z9"))
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT		cstr15
+
+        SFL_TARGET
+		rkptynipdlr	lrkptype
+
+MAP(mupdrkp)
+lrkpdf3			rkpdf8		REPLACE
+
+DBCALCS(dupdrkp)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr	rkptype	rkpnip	rkpkdtgk
+	DBC_LAST_TARGET	rkptynipdlr	rkptype	rkpnip	rkpkdtgk
+	DBC_MAP		mupdrkp
+
+MAP(mmapmap)
+c0			lrkpdf3		DO_CALC
+rkpdf3			lrkpdf3		REPLACE
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+SPCALCS(sptrans)
+dmapmap
+dupdrkp
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

@@ -1,0 +1,514 @@
+SCREEN 3763  APP_TYPE Proses Uang Bensin
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lOPEN		STRING		5	
+lAP		STRING		3
+lthbl		STRING		5
+ltype3		INT2		2
+lrkptype	STRING		15
+lhasil1 	STRING		11
+lhasil2 	STRING		11
+lxjcjmlbawa		DFLOAT		8
+lxjctotfak		DFLOAT		8
+lK			STRING		2
+lcabstr1		STRING		11
+lclctype		STRING		15
+lclctype2		STRING		15
+lrmmtgl			DATE		4
+lfld_clckode		STRING		11
+lfld_clchasilstr		STRING		20
+lxjcbyrdenda		INT2		2
+lF			STRING		2
+ldum			INT2		2
+lkodebaru31		STRING		31
+lBNS11			STRING		11
+lBNS31			STRING		31
+lsimpan			DFLOAT		8
+lZ1			STRING		11
+lcabnoexp		INT2		2
+lpkjkode		STRING		31
+lkategori		STRING		11
+l1			INT2		2
+lkatok			INT2		2
+lRZ1			STRING		11
+ldenda11		STRING		11
+ldenda31		STRING		31
+lxjctbh2		DFLOAT		8
+lminggu1		DATE		4
+lminggu2		DATE		4
+lminggu3		DATE		4
+lCLSD			STRING		5
+ltgl01			DATE		4
+ltgl02			DATE		4
+ltgl03			DATE		4
+ltgl04			DATE		4
+ltgl05			DATE		4
+ltgl06			DATE		4
+ltgl07			DATE		4
+ltgl08			DATE		4
+ltgl09			DATE		4
+ltgl10			DATE		4
+ltgl11			DATE		4
+ltgl12			DATE		4
+ltgl13			DATE		4
+ltgl14			DATE		4
+ltgl15			DATE		4
+ltgl16			DATE		4
+ltgl17			DATE		4
+ltgl18			DATE		4
+ltgl19			DATE		4
+ltgl20			DATE		4
+ltgl21			DATE		4
+ltgl22			DATE		4
+ltgl23			DATE		4
+ltgl24			DATE		4
+ltgl25			DATE		4
+ltgl26			DATE		4
+ltgl27			DATE		4
+ltgl28			DATE		4
+ltgl29			DATE		4
+ltgl30			DATE		4
+ltgl31			DATE		4
+ltgl32			DATE		4
+lTT			STRING		11
+lusiaZ1			STRING		5
+lBA			STRING		3
+lppmstsexp		STRING		5
+
+
+CALCS()
+cBLANKS			BLANKS
+
+MAP(mjoinppm)
+cBLANKS			lppmstsexp		DO_CALC
+ppmstsexp 		lppmstsexp		REPLACE
+
+
+DBCALCS(djoinppm)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	ppmnofakidx		pjcnofak
+	DBC_MAP		mjoinppm
+
+MAP(mjoinpkj)
+pkjnobbm		lkategori		REPLACE
+pkjhrg			lkatok			REPLACE
+
+DBCALCS(djoinpkj)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	pkjkodidx		lpkjkode
+	DBC_MAP		mjoinpkj
+
+CALCS()
+cblanks			BLANKS
+c0			0
+
+MAP(mjoincab)
+cblanks			lcabstr1	DO_CALC
+cabstr1			lcabstr1	REPLACE
+cabnoexp		lcabnoexp	REPLACE
+
+DBCALCS(djoincab)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx	kymlokgj
+	DBC_MAP		mjoincab
+
+MAP(mjoinxjc)
+c0			lxjcjmlbawa		DO_CALC
+c0			lxjctotfak		DO_CALC
+c0			lxjcbyrdenda		DO_CALC
+c0			lxjctbh2		DO_CALC
+cblanks			lRZ1			DO_CALC
+xjcjmlbawa		lxjcjmlbawa		REPLACE
+xjctotfak		lxjctotfak		REPLACE
+xjcbyrdenda		lxjcbyrdenda		REPLACE
+xjcstr2			lRZ1			REPLACE
+xjctbh2			lxjctbh2		REPLACE
+
+DBCALCS(djoinxjc)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	pjcnofak
+	DBC_MAP		mjoinxjc
+
+
+DBCALCS(djoinrkp)
+	DBC_COMMAND	JOIN	
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	lTT	lhasil1	lkodebaru31
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3763              _________________________________                 @DATE
+   ===Proses pencapaian Kolektor untuk komisian=============================
+          Pilihan    : __                      Periode Komisi : _____
+          Usia       : _____
+          Pencapaian : ________ sd _________ 
+	  Reward MG1 : ________ / ________ / ________ 
+          ___________                          
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          2
+   lthbl		 PROTECT QPROTECT		INPUTRI		4
+   lusiaZ1		 NOCHANGE			INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          5
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          6
+   lminggu1              PROTECT {DD-MM-YY}          	INPUTRI          7
+   lminggu2              PROTECT {DD-MM-YY}          	INPUTRI          8
+   lminggu3              PROTECT {DD-MM-YY}          	INPUTRI          9
+   
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		10
+
+
+DEFAULTS(master)
+lZ1			INIT		Z1
+lfld_clckode		INIT		"clckode"
+lfld_clchasilstr	INIT		"clchasilstr2"
+ltype3			INIT		3
+lOPEN			INIT		OPEN
+ltgl1			INIT		{stsprjinv}
+ltgl2			INIT		{stsprjpiupr}
+lclctype		INIT		29471104UMR
+lrmmtgl			INIT		{g_tgltrn}
+lAP			INIT		AP
+lK			INIT		K
+lF			INIT		F
+lBNS11			INIT		BNS
+lBNS31			INIT		BNS
+l1			INIT		1
+ldenda11		INIT		DEN
+ldenda31		INIT		DEN
+
+lminggu1		INIT		20110310
+lminggu2		INIT		20110317
+lminggu3		INIT		20110324
+lusiaZ1			DFALT_LIST	Z1 Z2
+lBA			INIT		BA
+
+
+
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+CALCS()
+cpilih1			lpil == 1
+cpilih2			lpil == 2
+
+cTT1105			"TT1105"
+cPB1104			"PB1104"
+
+ctgl01			ltgl1
+ctgl02			ltgl1 + 1
+ctgl03			ltgl1 + 2
+ctgl04			ltgl1 + 3
+ctgl05			ltgl1 + 4
+ctgl06			ltgl1 + 5
+ctgl07			ltgl1 + 6
+ctgl08			ltgl1 + 7
+ctgl09			ltgl1 + 8
+ctgl10			ltgl1 + 9
+ctgl11			ltgl1 + 10
+ctgl12			ltgl1 + 11
+ctgl13			ltgl1 + 12
+ctgl14			ltgl1 + 13
+ctgl15			ltgl1 + 14
+ctgl16			ltgl1 + 15
+ctgl17			ltgl1 + 16
+ctgl18			ltgl1 + 17
+ctgl19			ltgl1 + 18
+ctgl20			ltgl1 + 19
+ctgl21			ltgl1 + 20
+ctgl22			ltgl1 + 21
+ctgl23			ltgl1 + 22
+ctgl24			ltgl1 + 23
+ctgl25			ltgl1 + 24
+ctgl26			ltgl1 + 25
+ctgl27			ltgl1 + 26
+ctgl28			ltgl1 + 27
+ctgl29			ltgl1 + 28
+ctgl30			ltgl1 + 29
+ctgl31			ltgl1 + 30
+
+
+
+
+
+MAP(mtype)
+cTT1105			lclctype2		DO_CALC_IF cpilih1
+cPB1104			lclctype2		DO_CALC_IF cpilih2
+ctgl01		ltgl01		DO_CALC
+ctgl02		ltgl02		DO_CALC
+ctgl03		ltgl03		DO_CALC
+ctgl04		ltgl04		DO_CALC
+ctgl05		ltgl05		DO_CALC
+ctgl06		ltgl06		DO_CALC
+ctgl07		ltgl07		DO_CALC
+ctgl08		ltgl08		DO_CALC
+ctgl09		ltgl09		DO_CALC
+ctgl10		ltgl10		DO_CALC
+ctgl11		ltgl11		DO_CALC
+ctgl12		ltgl12		DO_CALC
+ctgl13		ltgl13		DO_CALC
+ctgl14		ltgl14		DO_CALC
+ctgl15		ltgl15		DO_CALC
+ctgl16		ltgl16		DO_CALC
+ctgl17		ltgl17		DO_CALC
+ctgl18		ltgl18		DO_CALC
+ctgl19		ltgl19		DO_CALC
+ctgl20		ltgl20		DO_CALC
+ctgl21		ltgl21		DO_CALC
+ctgl22		ltgl22		DO_CALC
+ctgl23		ltgl23		DO_CALC
+ctgl24		ltgl24		DO_CALC
+ctgl25		ltgl25		DO_CALC
+ctgl26		ltgl26		DO_CALC
+ctgl27		ltgl27		DO_CALC
+ctgl28		ltgl28		DO_CALC
+ctgl29		ltgl29		DO_CALC
+ctgl30		ltgl30		DO_CALC
+ctgl31		ltgl31		DO_CALC
+
+
+
+
+
+lusiaZ1			lTT			REPLACE
+
+HOOKS(master)
+BEFORE_INPUT		cur_field=lpil		 	DO_LIB ap_thbln(g_tgltrn,lthbl,ltype3);
+AFTER_INPUT		cur_field=ltgl1			DO_MAP SHOW mtype
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________    _______________
+
+FIELDS(trans)
+        kymnip       	NOCHANGE        INPUTRI 1
+        kymcabskr      	PROTECT		INPUTRI	2 
+
+
+CALCS()
+cdepkolektor		((kymjabatan == "KOL" || kymjabatan == "BJTP" || kymjabatan == "REM" || kymjabatan == "CHECK")) && (kymsts != "CLSD" || (kymsts == "CLSD" && kymtglklr >= ltgl1))
+
+SUBFILE(trans)
+        SFL_LINES(10)
+        SFL_SELECT      cdepkolektor
+        SFL_TARGET_GTE
+		kymstsnipidx	lCLSD	{lOPEN}
+
+
+CALCS()
+cpil1			lpil == 1
+cdjoincab		djoincab == 1
+crkptype1		"KOLEK" + STRIP(lthbl)
+cpkjkode		STRIP(lcabstr1) + "KOL" + STRIP(lZ1)
+cdjoinpkj1		djoinpkj == 1
+cdjoinxjc		djoinxjc == 1
+
+MAP(mmapmap)
+crkptype1		lrkptype		DO_CALC_IF cpil1
+lcabstr1		lcabstr1		REPLACE_IF cdjoincab
+c0			lsimpan			DO_CALC
+
+cpkjkode		lpkjkode		DO_CALC
+cblanks			lkategori		DO_CALC
+c0			lkatok			DO_CALC
+lkategori		lkategori		REPLACE_IF cdjoinpkj1
+lkatok			lkatok			REPLACE_IF cdjoinpkj1
+lxjctotfak		lxjctotfak		REPLACE_IF cdjoinxjc
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+CALCS()
+cTT			"TT"
+
+MAP(maddrkp)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+lTT			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lhasil1			rkpkodeclc		REPLACE
+lhasil1     		rkptype2		REPLACE
+
+
+DBCALCS(daddrkp)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp
+
+
+CALCS()
+cdf3			rkpdf3 + 1
+cdjoinxjcok		djoinxjc == 1
+ctagihtangan		ppmkol == ppmtagih
+
+
+MAP(mupdrkp)
+cdf3			rkpdf3			DO_CALC_IF ctagihtangan
+
+
+DBCALCS(dupdrkp)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	lTT	lhasil1		lkodebaru31
+	DBC_MAP		mupdrkp
+
+
+
+CALCS()
+cdjoinrkp0		pjcsts == "CLSD" && pjctgl >= ltgl1 && pjctgl <= ltgl2 && djoinppm == 1 && lppmstsexp == lusiaZ1 && djoinrkp == 0 && lhasil1 != "" && lkatok == 5
+chasilISI		pjcsts == "CLSD" && pjctgl >= ltgl1 && pjctgl <= ltgl2 && djoinppm == 1 && lppmstsexp == lusiaZ1 && lhasil1 != "" && lkatok == 5
+
+CALCS()
+ckettgl01		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl01
+ckettgl02		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl02
+ckettgl03		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl03
+ckettgl04		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl04
+ckettgl05		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl05
+ckettgl06		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl06
+ckettgl07		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl07
+ckettgl08		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl08
+ckettgl09		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl09
+ckettgl10		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl10
+ckettgl11		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl11
+ckettgl12		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl12
+ckettgl13		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl13
+ckettgl14		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl14
+ckettgl15		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl15
+ckettgl16		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl16
+ckettgl17		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl17
+ckettgl18		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl18
+ckettgl19		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl19
+ckettgl20		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl20
+ckettgl21		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl21
+ckettgl22		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl22
+ckettgl23		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl23
+ckettgl24		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl24
+ckettgl25		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl25
+ckettgl26		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl26
+ckettgl27		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl27
+ckettgl28		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl28
+ckettgl29		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl29
+ckettgl30		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl30
+ckettgl31		djoinppm == 1 && djoinxjc == 1 && ((lppmstsexp == "Z1" && lRZ1 == "RZ1") || lppmstsexp != "Z1") && lxjcbyrdenda != 0 && pjctgl == ltgl31
+
+chasil01			"TT01"
+chasil02			"TT02"
+chasil03			"TT03"
+chasil04			"TT04"
+chasil05			"TT05"
+chasil06			"TT06"
+chasil07			"TT07"
+chasil08			"TT08"
+chasil09			"TT09"
+chasil10			"TT10"
+chasil11			"TT11"
+chasil12			"TT12"
+chasil13			"TT13"
+chasil14			"TT14"
+chasil15			"TT15"
+chasil16			"TT16"
+chasil17			"TT17"
+chasil18			"TT18"
+chasil19			"TT19"
+chasil20			"TT20"
+chasil21			"TT21"
+chasil22			"TT22"
+chasil23			"TT23"
+chasil24			"TT24"
+chasil25			"TT25"
+chasil26			"TT26"
+chasil27			"TT27"
+chasil28			"TT28"
+chasil29			"TT29"
+chasil30			"TT30"
+chasil31			"TT31"
+
+
+MAP(mmapitem)
+cBLANKS			lhasil1		DO_CALC
+
+chasil01		lhasil1		DO_CALC_IF ckettgl01
+chasil02		lhasil1		DO_CALC_IF ckettgl02
+chasil03		lhasil1		DO_CALC_IF ckettgl03
+chasil04		lhasil1		DO_CALC_IF ckettgl04
+chasil05		lhasil1		DO_CALC_IF ckettgl05
+chasil06		lhasil1		DO_CALC_IF ckettgl06
+chasil07		lhasil1		DO_CALC_IF ckettgl07
+chasil08		lhasil1		DO_CALC_IF ckettgl08
+chasil09		lhasil1		DO_CALC_IF ckettgl09
+chasil10		lhasil1		DO_CALC_IF ckettgl10
+chasil11		lhasil1		DO_CALC_IF ckettgl11
+chasil12		lhasil1		DO_CALC_IF ckettgl12
+chasil13		lhasil1		DO_CALC_IF ckettgl13
+chasil14		lhasil1		DO_CALC_IF ckettgl14
+chasil15		lhasil1		DO_CALC_IF ckettgl15
+chasil16		lhasil1		DO_CALC_IF ckettgl16
+chasil17		lhasil1		DO_CALC_IF ckettgl17
+chasil18		lhasil1		DO_CALC_IF ckettgl18
+chasil19		lhasil1		DO_CALC_IF ckettgl19
+chasil20		lhasil1		DO_CALC_IF ckettgl20
+chasil21		lhasil1		DO_CALC_IF ckettgl21
+chasil22		lhasil1		DO_CALC_IF ckettgl22
+chasil23		lhasil1		DO_CALC_IF ckettgl23
+chasil24		lhasil1		DO_CALC_IF ckettgl24
+chasil25		lhasil1		DO_CALC_IF ckettgl25
+chasil26		lhasil1		DO_CALC_IF ckettgl26
+chasil27		lhasil1		DO_CALC_IF ckettgl27
+chasil28		lhasil1		DO_CALC_IF ckettgl28
+chasil29		lhasil1		DO_CALC_IF ckettgl29
+chasil30		lhasil1		DO_CALC_IF ckettgl30
+chasil31		lhasil1		DO_CALC_IF ckettgl31
+
+
+
+lhasil1			lkodebaru31	REPLACE
+
+
+
+DBCALCS(dmapmapitem)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapitem
+
+
+SPCALCS(spjcitem)
+dmapmapitem
+IF cdjoinrkp0 	daddrkp
+IF chasilISI	dupdrkp
+
+
+DBCALCS(dbscanpjc)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	pjcbbmtytgl	kymnip	lBA
+	DBC_SPCALCS    	spjcitem 
+
+
+
+SPCALCS(sptrans)
+	dmapmap
+	dbscanpjc
+
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

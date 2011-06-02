@@ -1,0 +1,1386 @@
+SCREEN 3765 APP_TYPE Proses Ulang ppmtgby1
+/*SCR_APP_DIR_OK*/
+SCR_TGLTRN_PASS_OK
+
+LOCAL
+PGM_FIELDS
+lenter       	STRING         15
+lpjdkdpry       	STRING         15
+lSTS           	STRING       	3
+lF             	STRING       	2
+lK             	STRING       	2
+lINPG          	STRING       	5
+ltglawl         DATE            4
+ltglakh         DATE            4
+ltgl1		DATE		4
+ltgl2		DATE		4
+ltgl3		DATE		4
+ltgl4		DATE		4
+lkyldf9		DFLOAT		8
+ldvsrekbank	STRING		4
+lppersen		DFLOAT		8
+ldpersen		DFLOAT		8
+lpersen		DFLOAT		8
+lpilihan	STRING		15
+lpryket2	STRING		11
+lcabstr1	STRING		11
+lblanks     	STRING		5 
+lzz     	STRING		5 
+lxjcbrdprm	STRING		15 
+lppmkel   	STRING		15 
+lppmkel15   	STRING		15 
+lxjcpostgl2	DATE 4
+lusia      	STRING 		5
+ldum       	STRING 		5
+lBLANKS		STRING		15
+lzzz		STRING		15
+lppmsts		STRING		5
+lppmtglret	DATE	4
+lppmsubtran	STRING	2
+lxjcbyrdenda	DFLOAT	8	
+lZ1		STRING	5
+lBDG		STRING	5
+l1105		STRING	11
+lh   		STRING	2 
+lSUHE  		STRING	5  
+lFID   		STRING	11 
+lAA		STRING	3
+lBA		STRING	3
+lCLSD		STRING	5
+
+MAP(mcarikyl)
+kyldf9		lkyldf9		REPLACE
+
+DBCALCS(djoinkyl)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kylnoidx	ppmnofak
+	DBC_MAP		mcarikyl
+
+MAP(mppms)
+ppmsts  	lppmsts  	REPLACE
+ppmtglret	lppmtglret	REPLACE
+ppmsubtran	lppmsubtran	REPLACE
+
+DBCALCS(djoinppm)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	ppmnofakidx	xjcnoprc
+	DBC_MAP		mppms
+
+
+MAP(mcaridvs)
+dvsrekbank	ldvsrekbank	REPLACE
+
+DBCALCS(djoindvs)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	dvskodidx	ppmdvs
+	DBC_MAP		mcaridvs
+   
+DBCALCS(djoinpor)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	pornpoidx	ppmnofak
+
+MAP(mcarixjc)
+xjcbrdprm	lxjcbrdprm	REPLACE
+xjcpostgl2      lxjcpostgl2     REPLACE
+
+DBCALCS(djoinxjc)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	ppmnofak
+	DBC_MAP		mcarixjc
+
+MAP(mcarixjc11)
+xjcbrdprm	lxjcbrdprm	REPLACE
+xjcpostgl2      lxjcpostgl2     REPLACE
+xjcbyrdenda	lxjcbyrdenda	REPLACE
+
+DBCALCS(djoinxjc11)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	pjcnofak 
+	DBC_MAP		mcarixjc11
+
+
+
+DBCALCS(djoinpry)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	prykodidx	xjcbrdprm
+
+DBCALCS(djoinsjl)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	sjlnoidx	ppmnofak
+
+DBCALCS(djoinpjd)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	pjdbukfakidx	ppmnofak lppmkel
+
+DBCALCS(djoinsup16)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	supkodidx   ppmkol                 
+
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3765                 _________________________________             @DATE
+   ===010411==========[Proses awal bulan tentukan Z0 s/d ZS]================
+         Pilihan   ===>   : ____________ Usia : ______                          
+         Tanggal 01-01-70 : ________ s/d Tutup Target + 1       : ________  
+         Tutup Target + 1 : ________ s/d Tutup Target Bln Depan : ________
+  Tutup Tgt Bln Depan + 1 : ________ s/d Kosongkan : ________ Enter: _____
+   =========================================================================
+     NO BUKTI             NO FAK BARU        STATUS       CABANG   
+   =========================================================================
+   1. UPDEXP         proses awal bulan update ppmstsexp
+   2. WARNA          tandain WARNA ppmstr3 dan ppmsmt5
+   3. TGTKWI         tandain WARNA ppmstr3 dan ppmsmt5
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     RI CENTER        1
+   lpilihan		NOCHANGE		INPUTRI		1
+   lusia    		ALLCAPS SCROLL		INPUTRI		1
+   ltglawl               NONE {DD-MM-YY}             INPUTRI          2
+   ltglakh               NONE {DD-MM-YY}             INPUTRI          3
+   ltgl1		 NONE {DD-MM-YY}	     INPUTRI          5
+   ltgl2                 NONE {DD-MM-YY}             INPUTRI          6
+   ltgl3                 NONE {DD-MM-YY}             INPUTRI	      7
+   ltgl4		 NONE {DD-MM-YY}	     INPUTRI          8
+   lenter                NOCHANGE                    INPUTRI          9
+
+  CALCS()
+cjoindvs1 djoindvs == 1
+cjoinxjc1	djoinxjc == 1
+cjoinpry1	djoinpry == 1
+ 
+DEFAULTS(master)
+lpjdkdpry   INIT    AREAPIUTANG01
+lSTS    INIT    BLANKS
+lh	INIT	b
+lSUHE	INIT	SUHE
+lFID 	INIT	FID  
+lF      INIT    F
+lK      INIT    K
+lINPG   INIT    INPG
+lBDG	INIT	BDG
+l1105	INIT	1105
+lpilihan	DFALT_SCAN KOLSUP HPSPRY ADDHIS KOSONGRPD ISIBAYAR XJCBYRDENDA UPDEXP KSGSTNK STNKKEXJC HPSPPMTGBY1 PPMTGBY1 WARNA TGTKWI UBHJTP AREAPJD KOSPJD PPMTGTGT
+lblanks		INIT	BLANKS
+lBLANKS		INIT	BLANKS
+lzz		INIT	zzzz
+lzzz		INIT	zzzz
+ltglawl		INIT 	{stsprjss}
+ltglakh		INIT 	{g_tgltrn}
+lZ1		INIT	Z1
+lAA		INIT	AA
+lBA		INIT	BA
+lCLSD		INIT	CLSD
+
+/*** SUBFILE INFORMATION ***/
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+ ___________________ ___________________ ______ ____ ______ _______________ ______
+
+FIELD(trans)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  I/O Special */
+ppmnofak     	ALLCAPS SCROLL		INPUTRI	1
+ppmnoret	ALLCAPS SCROLL		INPUTRI	2
+ppmsts		PROTECT			INPUTRI 3
+ppmcab		NOCHANGE		INPUTRI 4
+ppmdvs		NOCHANGE		INPUTRI 4
+xjcbrdprm	NOCHANGE		INPUTRI 4
+pryket2		NOCHANGE		INPUTRI 4
+
+EDITS(trans)
+nofaktur tidak ada ppmnofak VALIDATE ppmnofakidx mppm1
+divisi tidak ada ppmdvs VALIDATE_IF cjoindvs1 dvskodidx mdvs1
+kode3049 tidak ada ppmnofak VALIDATE_IF cjoinxjc1 xjcnoprcidx mxjc
+kode1716 tidak ada xjcbrdprm VALIDATE_IF cjoinpry1 prykodidx mpry
+
+MAP(mpry)
+prykode	prykode	REPLACE
+pryket2	lpryket2	REPLACE
+
+MAP(mxjc)
+xjcnoprc	xjcnoprc	REPLACE
+xjcbrdprm	xjcbrdprm	REPLACE
+
+MAP(mdvs1)
+dvskode	dvskode	REPLACE
+dvsrekbank	dvsrekbank	REPLACE
+
+
+MAP(mppm1)
+ppmnofak 		ppmnofak	REPLACE
+ppmtglfak		ppmtglfak	REPLACE
+ppmalamat2		ppmalamat2	REPLACE
+ppmnocek		ppmnocek	REPLACE
+ppmkota  		ppmkota  	REPLACE
+ppmbeli  		ppmbeli  	REPLACE
+ppmalamat		ppmalamat	REPLACE
+
+CALCS()
+cjoinppm1   
+(ppmsts == "INPG" && (ppmtglfak < stsprjss || (ppmtglfak >= stsprjss && ppmstsprc == "GANT")) && ppmstsr1 != "E") || (ppmsts == "INPG" && (ppmtglfak < stsprjss || (ppmtglfak >= stsprjss && ppmstsprc == "GANT")) && ppmstsr1 == "E" && ppmtgltrk >= ltglakh) || (ppmsts == "INPG" && ppmtglfak >= stsprjss && ppmstsprc != "GANT") && (ppmsts == "INPG" && ppmtotfakjs != 0 && ppmsmt1 != 0 && (ppmtype4 =="K" || ppmtype4 =="S")) 
+
+chanya1	lpilihan =="UPDEXP"
+chanya2	lpilihan =="TGTKWI"
+chanya3	lpilihan =="UBHJTP"
+chanya4	lpilihan =="AREAPJD"
+chanya5 lpilihan == "PPMTGBY1"
+chanya6 lpilihan == "HPSPPMTGBY1"
+chanya7 lpilihan == "STNKKEXJC"
+chanya8 lpilihan == "KSGSTNK"
+
+SUBFILE(trans)
+SFL_COND	chanya1
+SFL_SELECT cjoinppm1
+SFL_LINES(10)     /* total number of lines sfl takes up on screen  */
+
+SFL_TARGET_GTE
+ppmtgltypfak		ltglawl  {ltglakh}
+
+IMAGE(transg1) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+ ______________  _____  ___ _____.__  
+
+FIELD(transg1)
+ppmnofak		NOCHANGE	INPUTRI	1
+ppmstsexp			PROTECT 	INPUTRI	1
+ppmke			PROTECT 	INPUTRI	1
+lpersen			PROTECT		INPUTRI	1
+
+
+CALCS()
+/*cok1a		(ppmsts == "INPG" && (ppmtglfak < stsprjss || (ppmtglfak >= stsprjss && ppmstsprc == "GANT")) && ppmstsr1 != "E") 
+		|| (ppmsts == "INPG" && (ppmtglfak < stsprjss || (ppmtglfak >= stsprjss && ppmstsprc == "GANT")) && ppmstsr1 == "E" && ppmtgltrk >= ltglakh)
+		|| (ppmsts == "INPG" && ppmtglfak >= stsprjss && ppmstsprc != "GANT") && (ppmsts == "INPG" && ppmtotfakjs != 0 && ppmsmt1 != 0 
+		&& (ppmtype4 =="K" || ppmtype4 =="S")) */
+cok1a	
+ppmstsexp == "Z0" || 
+ppmstsexp == "Z1" || 
+ppmstsexp == "Z2" || 
+ppmstsexp == "Z3" || 
+ppmstsexp == "Z4" || 
+ppmstsexp == "Z5" || 
+ppmstsexp == "Z6" || 
+ppmstsexp == "Z7" || 
+ppmstsexp == "Z8" || 
+ppmstsexp == "Z9" || 
+ppmstsexp == "ZA" || 
+ppmstsexp == "ZB" || 
+ppmstsexp == "ZC" || 
+ppmstsexp == "ZD" || 
+ppmstsexp == "ZE" || 
+ppmstsexp == "ZF" || 
+ppmstsexp == "ZG" || 
+ppmstsexp == "ZH" || 
+ppmstsexp == "ZI" || 
+ppmstsexp == "ZJ" || 
+ppmstsexp == "ZK" || 
+ppmstsexp == "ZL" || 
+ppmstsexp == "ZM" || 
+ppmstsexp == "ZN" || 
+ppmstsexp == "ZO" || 
+ppmstsexp == "ZP" || 
+ppmstsexp == "ZQ" || 
+ppmstsexp == "ZR" || 
+ppmstsexp == "ZS"
+
+cppersen		ppmtotppn + ppmbyrum
+cdpersen		ppmtotfakbr
+
+ctnol			ppmtotfakbr != 0
+cpersen			((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100
+
+cok1		lpilihan	== "WARNA"
+
+EDITS(transg1)
+nofak ga ada	ppmnofak VALIDATE	ppmnofakidx mppm 0
+
+MAP(mppm)
+cdpersen		lppersen		DO_CALC
+cppersen		ldpersen		DO_CALC
+cpersen			lpersen			DO_CALC_IF ctnol
+
+SUBFILE(transg1)
+SFL_LINES(10)
+SFL_COND	cok1
+SFL_SELECT	cok1a
+SFL_TARGET_GTE
+ppmtgltypfak            ltglawl  {ltglakh}
+
+
+IMAGE(transg2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+ ______________  _____  ___ ___ 
+
+FIELD(transg2)
+ppmnofak		NOCHANGE	INPUTRI	1
+ppmstsexp			PROTECT 	INPUTRI	1
+ppmke			PROTECT 	INPUTRI	1
+ldum     		PROTECT 	INPUTRI	1
+
+EDITS(transg2)
+Kode 3049 tidak ada ppmnofak VALIDATE_IF cjoinxjc1 xjcnoprcidx mxjc2 0
+
+MAP(mxjc2)
+xjcnoprc	xjcnoprc	REPLACE
+
+SUBFILE(transg2)
+SFL_LINES(10)
+SFL_COND	chanya2
+SFL_TARGET
+ppmtypstsfak lF lK lINPG
+
+
+IMAGE(transg3) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+______________ _____ ___ ___ _________ JTP:________ PPMTGL1:________ :_________
+
+FIELD(transg3)
+ppmnofak		NOCHANGE	INPUTRI	1
+ppmsts   			PROTECT 	INPUTRI	1
+ppmke			PROTECT 	INPUTRI	1
+ldum     		PROTECT 	INPUTRI	1
+ppmtgljtp		PROTECT 	INPUTRI	1
+ppmtglbyrsbl	NONE {DD-MM-YY}		INPUTRI	1
+ppmtgl1     	NONE {DD-MM-YY}		INPUTRI	1
+ppmtglret   	NONE {DD-MM-YY}		INPUTRI	1
+
+EDITS(transg3)
+Kode 3049 tidak ada ppmnofak VALIDATE_IF cjoinxjc1 xjcnoprcidx mxjc3 0
+
+
+MAP(mxjc3)
+xjcnoprc xjcnoprc REPLACE
+
+CALCS()
+cselect3	ppmsubtran == "K" && ppmsts == "INPG" &&
+(
+(ppmtglbyrsbl >= 20100826 && ppmtglbyrsbl <= 20100831) ||
+(ppmtglbyrsbl >= 20100926 && ppmtglbyrsbl <= 20100930) ||
+(ppmtglbyrsbl >= 20101026 && ppmtglbyrsbl <= 20101031) ||
+(ppmtglbyrsbl >= 20101126 && ppmtglbyrsbl <= 20101130) ||
+(ppmtglbyrsbl >= 20101226 && ppmtglbyrsbl <= 20101231) ||   
+(ppmtglbyrsbl >= 20110126 && ppmtglbyrsbl <= 20110131) ||     
+(ppmtglbyrsbl >= 20110226 && ppmtglbyrsbl <= 20110228) ||     
+(ppmtglbyrsbl >= 20110326 && ppmtglbyrsbl <= 20110331) ||     
+(ppmtglbyrsbl >= 20110426 && ppmtglbyrsbl <= 20110430) ||     
+
+(ppmtglbyrsbl >= 20110526 && ppmtglbyrsbl <= 20110531) ||     
+(ppmtglbyrsbl >= 20110626 && ppmtglbyrsbl <= 20110630) ||     
+(ppmtglbyrsbl >= 20110726 && ppmtglbyrsbl <= 20110731) ||     
+(ppmtglbyrsbl >= 20110826 && ppmtglbyrsbl <= 20110831) ||     
+(ppmtglbyrsbl >= 20110926 && ppmtglbyrsbl <= 20110930) ||     
+(ppmtglbyrsbl >= 20111026 && ppmtglbyrsbl <= 20111031) ||     
+(ppmtglbyrsbl >= 20111126 && ppmtglbyrsbl <= 20111130)        
+)
+
+
+
+caa (ppmtglbyrsbl >= 20100826 && ppmtglbyrsbl <= 20100831)   
+cbb (ppmtglbyrsbl >= 20100926 && ppmtglbyrsbl <= 20100930)   
+ccc (ppmtglbyrsbl >= 20101026 && ppmtglbyrsbl <= 20101031)   
+cdd (ppmtglbyrsbl >= 20101126 && ppmtglbyrsbl <= 20101130)   
+cee (ppmtglbyrsbl >= 20101226 && ppmtglbyrsbl <= 20101231)    
+cff (ppmtglbyrsbl >= 20110126 && ppmtglbyrsbl <= 20110131)    
+cgg (ppmtglbyrsbl >= 20110226 && ppmtglbyrsbl <= 20110228)    
+cgh (ppmtglbyrsbl >= 20110326 && ppmtglbyrsbl <= 20110331)    
+cgi (ppmtglbyrsbl >= 20110426 && ppmtglbyrsbl <= 20110430)    
+
+cgj (ppmtglbyrsbl >= 20110526 && ppmtglbyrsbl <= 20110531)    
+cgk (ppmtglbyrsbl >= 20110626 && ppmtglbyrsbl <= 20110630)    
+cgl (ppmtglbyrsbl >= 20110726 && ppmtglbyrsbl <= 20110731)    
+cgm (ppmtglbyrsbl >= 20110826 && ppmtglbyrsbl <= 20110831)    
+cgn (ppmtglbyrsbl >= 20110926 && ppmtglbyrsbl <= 20110930)    
+cgo (ppmtglbyrsbl >= 20111026 && ppmtglbyrsbl <= 20111031)    
+cgp (ppmtglbyrsbl >= 20111126 && ppmtglbyrsbl <= 20111130)    
+
+ctgljtpa		20100901
+ctgljtpb		20101001
+ctgljtpc		20101101
+ctgljtpd		20101201
+ctgljtpe		20110101
+ctgljtpf		20110201
+ctgljtpg		20110301
+ctgljtph		20110401
+ctgljtpi		20110501
+
+ctgljtpj		20110601
+ctgljtpk		20110701
+ctgljtpl		20110801
+ctgljtpm 		20110901
+ctgljtpn		20111001
+ctgljtpo		20111101
+ctgljtpp		20111201
+
+SUBFILE(transg3)
+SFL_LINES(10)
+SFL_COND	chanya3
+SFL_SELECT	cselect3
+SFL_TARGET
+ppmtypstsfak lF lK lINPG
+
+MAP(mupdppm3)
+ctgljtpa	ppmtglbyrsbl   DO_CALC_IF caa
+ctgljtpb	ppmtglbyrsbl   DO_CALC_IF cbb
+ctgljtpc	ppmtglbyrsbl   DO_CALC_IF ccc
+ctgljtpd	ppmtglbyrsbl   DO_CALC_IF cdd
+ctgljtpe	ppmtglbyrsbl   DO_CALC_IF cee
+ctgljtpf	ppmtglbyrsbl   DO_CALC_IF cff
+ctgljtpg	ppmtglbyrsbl   DO_CALC_IF cgg
+ctgljtph	ppmtglbyrsbl   DO_CALC_IF cgh
+ctgljtpi	ppmtglbyrsbl   DO_CALC_IF cgi
+
+ctgljtpj	ppmtglbyrsbl   DO_CALC_IF cgj
+ctgljtpk	ppmtglbyrsbl   DO_CALC_IF cgk
+ctgljtpl	ppmtglbyrsbl   DO_CALC_IF cgl
+ctgljtpm	ppmtglbyrsbl   DO_CALC_IF cgm
+ctgljtpn	ppmtglbyrsbl   DO_CALC_IF cgn
+ctgljtpo	ppmtglbyrsbl   DO_CALC_IF cgo
+ctgljtpp	ppmtglbyrsbl   DO_CALC_IF cgp
+
+DBCALCS(dupdppm3)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      ppmprmidx    ppmprm
+	DBC_MAP         mupdppm3
+
+
+IMAGE(transg4) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+______________ _____ ______________ CabPiut: ____ dlr: ____ Kol: ____________
+
+FIELD(transg4)
+ppmnofak		NOCHANGE	INPUTRI	1
+ppmstsexp			PROTECT 	INPUTRI	1
+ppmkel		PROTECT 	INPUTRI	1
+ppmstr1		PROTECT 	INPUTRI	1
+lcabstr1		PROTECT 	INPUTRI	1
+ppmkol  		PROTECT 	INPUTRI	1
+
+EDITS(transg4)
+cabang piutang tdk ada ppmstr1 VALIDATE cabnoidx mppm4
+
+MAP(mppm4)
+cabstr1	lcabstr1	REPLACE
+
+DEFAULTS(transg4)
+lppmkel		INIT		{ppmkel}
+lppmkel		INIT_UPDATE	{ppmkel}
+
+CALCS()
+cselect4	ppmstsexp == lusia 
+
+SUBFILE(transg4)
+SFL_LINES(10)
+SFL_COND	chanya4
+SFL_SELECT	cselect4
+SFL_TARGET
+ppmtypstsfak lF lK lINPG
+
+IMAGE(transg5) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+   ___________________   ____________ ____ ____________________
+
+FIELD(transg5)
+pjcnoprc        NOCHANGE        SCROLL          INPUTRI 1
+pjctgl          NONE {DD-MM-YY}                 INPUTRI 1
+pjctyplg        NOCHANGE        SCROLL          INPUTRI 1
+pjcnofak        NOCHANGE        SCROLL          INPUTRI 1
+
+CALCS()
+cselect5        pjcsts == "CLSD" && (pjctyplg =="AA" || pjctyplg=="BA") 
+
+SUBFILE(transg5)
+SFL_COND        chanya5
+SFL_SELECT      cselect5    
+SFL_LINES(10)
+SFL_TARGET_GTE
+pjctglstsplg  ltglawl {ltglakh}
+
+IMAGE(transg6) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+   ___________________   ____________ ____ ____________________
+
+FIELD(transg6)
+pjcnoprc        NOCHANGE        SCROLL          INPUTRI 1
+pjctgl          NONE {DD-MM-YY}                 INPUTRI 1
+pjctyplg        NOCHANGE        SCROLL          INPUTRI 1
+pjcnofak        NOCHANGE        SCROLL          INPUTRI 1
+
+CALCS()
+cselect6        pjcsts == "CLSD" && (pjctyplg =="AA" || pjctyplg=="BA") 
+/*cselect6       	pjctgl >= ltglawl && pjctgl <= ltglakh  */
+
+SUBFILE(transg6)
+SFL_COND        chanya6
+SFL_SELECT      cselect6
+SFL_LINES(10)
+SFL_TARGET_GTE
+pjctglstsplg  ltglawl 	{ltglakh}
+/*pjctypstsfak   lAA	lCLSD	 */
+
+IMAGE(transg7) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+ ___________________   ____________ ____ ____________________ __ 
+
+FIELD(transg7)
+pjcnoprc        NOCHANGE        SCROLL          INPUTRI 1
+pjctgl          NONE {DD-MM-YY}                 INPUTRI 1
+pjctyplg        NOCHANGE        SCROLL          INPUTRI 1
+pjcnofak        NOCHANGE        SCROLL          INPUTRI 1
+pjcfm		NOCHANGE	SCROLL		INPUTRI	1
+
+CALCS()
+cselect7        pjcsts == "CLSD" && pjctyplg =="TR" && pjctgl >= stsprjpiupr
+
+SUBFILE(transg7)
+SFL_COND        chanya7
+SFL_SELECT      cselect7
+SFL_LINES(10)
+SFL_TARGET_GTE
+pjctglstsplg  ltglawl {ltglakh}
+
+IMAGE(transg8) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+ ___________________   ____________ ____ ____________________       
+
+FIELD(transg8)
+xjcnoprc        NOCHANGE        SCROLL          INPUTRI 1
+xjctgl          NONE {DD-MM-YY}                 INPUTRI 1
+xjcsts          NOCHANGE        SCROLL          INPUTRI 1
+xjcjmlbawa      NOCHANGE        SCROLL          INPUTRI 1
+
+
+EDITS(transg8)
+No.Faktur Tidak Ada xjcnoprc VALIDATE ppmnofakidx mppm8
+
+MAP(mppm8)
+ppmnofak 	ppmnofak	REPLACE
+ppmsts		ppmsts		REPLACE
+ppmtglret	ppmtglret	REPLACE
+
+CALCS()
+cselect8        djoinppm == 1 && lppmsts == "TRK1" && lppmtglret >= stsprjpiupr 
+
+SUBFILE(transg8)
+SFL_COND        chanya8
+SFL_SELECT      cselect8
+SFL_LINES(10)
+SFL_TARGET_GTE
+xjcnoprcidx lBLANKS {lzzz}
+
+IMAGE(transg9) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+___________________ ____________________ _________________ ___________ ____
+
+FIELD(transg9)
+pjdkdpry        NOCHANGE        SCROLL          INPUTRI 1
+pjdnobuk        NOCHANGE        SCROLL          INPUTRI 1
+pjdnofak        NOCHANGE        SCROLL          INPUTRI 1
+pjdsts          NOCHANGE        SCROLL          INPUTRI 1
+lusia           NOCHANGE        SCROLL          INPUTRI 1
+
+
+CALCS()
+cselect9		pjdkdpry == "AREAPIUTANG01" 
+chanya9		        lpilihan == "KOSPJD"
+
+SUBFILE(transg9)
+SFL_COND        chanya9
+SFL_SELECT      cselect9
+SFL_LINES(10)
+SFL_TARGET    
+pjdprytglidx    lpjdkdpry    
+
+
+IMAGE(transg10) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+___________________ ____________________ _________________
+
+FIELD(transg10)
+xjcnoprc	NOCHANGE	SCROLL		INPUTRI 1
+xjcbyrdenda	NOCHANGE	SCROLL		INPUTRI 1
+ppmtglret	NONE {DD-MM-YYYY} NONE		INPUTRI 1
+
+EDITS(transg10)
+No.Faktur Tidak Ada xjcnoprc VALIDATE ppmnofakidx mppm10
+
+MAP(mppm10)
+ppmnofak        ppmnofak        REPLACE
+ppmsts          ppmsts          REPLACE
+ppmtglret       ppmtglret       REPLACE
+
+CALCS()
+cselect10             xjcbyrdenda > 0 && djoinppm == 1 && lppmsubtran == "K" 
+chanya10                 lpilihan == "XJCBYRDENDA"
+
+SUBFILE(transg10)
+SFL_COND        chanya10
+SFL_SELECT      cselect10
+SFL_LINES(10)
+SFL_TARGET_GTE
+xjcnoprcidx lBLANKS {lzzz}  
+
+IMAGE(transg11) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ ________________ _____ _________
+
+FIELD(transg11)
+pjcnoprc      	ALLCAPS SCROLL		INPUTRI	1
+pjcnofak       	ALLCAPS SCROLL		INPUTRI	1
+ppmnofak       	ALLCAPS SCROLL		INPUTRI	1
+ppmstsexp      	ALLCAPS SCROLL		INPUTRI	1
+xjcplg         	ALLCAPS SCROLL		INPUTRI	1
+
+EDITS(transg11)
+XJC tidak ada pjcnofak VALIDATE xjcnoprcidx mxjc11
+PPM tidak ada pjcnofak VALIDATE ppmnofakidx mppm11
+
+
+MAP(mppm11)
+ppmnofak	ppmnofak	REPLACE
+ppmstsexp	ppmstsexp	REPLACE
+ppmsmt1		ppmsmt1		REPLACE
+
+MAP(mxjc11)
+xjcnoprc	xjcnoprc	REPLACE
+xjcplg		xjcplg		REPLACE
+xjcstslap	xjcstslap	REPLACE
+
+CALCS()
+cselect11      (pjctyplg == "TR" || pjctyplg == "AS" || pjctyplg == "KL") && pjcsts == "CLSD" && pjctotfak != 0                           
+chanya11	lpilihan == "ISIBAYAR"
+
+SUBFILE(transg11)
+SFL_SELECT cselect11
+SFL_COND   chanya11
+SFL_LINES(10)    
+
+SFL_TARGET_GTE    
+pjctglstsplg  ltglawl {ltglakh}
+
+IMAGE(transg12) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ __________
+
+FIELD(transg12)
+ppmnofak        ALLCAPS SCROLL          INPUTRI 1
+ppmstsexp       ALLCAPS SCROLL          INPUTRI 1
+xjcpostgl2      NONE {DD-MM-YYYY} NONE  INPUTRI 1
+
+EDITS(transg12)
+XJC tidak ada ppmnofak VALIDATE xjcnoprcidx mxjc12
+
+MAP(mxjc12)
+xjcnoprc        xjcnoprc        REPLACE
+xjcplg          xjcplg          REPLACE
+xjcstslap       xjcstslap       REPLACE
+xjcpostgl2	xjcpostgl2	REPLACE
+
+CALCS()
+cselect12       ppmtgtgt == BLANKS && djoinxjc == 1 && lxjcpostgl2 == ltglawl 
+chanya12        lpilihan == "PPMTGTGT"
+
+SUBFILE(transg12)
+SFL_SELECT cselect12
+SFL_COND   chanya12
+SFL_LINES(10)
+
+SFL_TARGET
+ppmsub4stsby lK lK lINPG lZ1     
+
+
+IMAGE(transg13) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ __________
+
+FIELD(transg13)
+rpdno        ALLCAPS SCROLL          INPUTRI 1
+rpdtype      ALLCAPS SCROLL          INPUTRI 1
+rpdtype2      ALLCAPS SCROLL          INPUTRI 1
+
+
+CALCS()
+cselect13       rpdtype == "1105" && rpdth == "17"
+chanya13        lpilihan == "KOSONGRPD"
+
+SUBFILE(transg13)
+SFL_SELECT cselect13
+SFL_COND   chanya13
+SFL_LINES(10)
+
+SFL_TARGET
+rpdjnstypkod lBDG l1105     
+
+
+IMAGE(transg14) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ __________ ______________
+
+FIELD(transg14)
+kyls15          ALLCAPS SCROLL          INPUTRI 1
+kylno           ALLCAPS SCROLL          INPUTRI 1
+kyltype         ALLCAPS SCROLL          INPUTRI 1
+kyls111		ALLCAPS	SCROLL		INPUTRI 1
+
+
+CALCS()
+cselect14       kyltype == "b" && kylno == "d" 
+chanya14        lpilihan == "ADDHIS"
+
+SUBFILE(transg14)
+SFL_SELECT cselect14
+SFL_COND   chanya14
+SFL_LINES(10)
+
+SFL_TARGET
+kylstsnoidx lh lSUHE 
+
+
+IMAGE(transg15) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ __________ ______________
+
+FIELD(transg15)
+pryplg          ALLCAPS SCROLL          INPUTRI 1
+prylokasi       ALLCAPS SCROLL          INPUTRI 1
+prystsexp       ALLCAPS SCROLL          INPUTRI 1
+prykode         ALLCAPS SCROLL          INPUTRI 1
+
+
+CALCS()
+cselect15       prystsexp == "Z1" && pryplg == "FID" && prylokasi == "SEPT"
+chanya15        lpilihan == "HPSPRY"
+
+SUBFILE(transg15)
+SFL_SELECT cselect15
+SFL_COND   chanya15
+SFL_LINES(10)
+
+SFL_TARGET
+pryplgkodidx lFID      
+
+IMAGE(transg16) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=12}
+___________________ ________________ __________
+
+FIELD(transg16)
+ppmnofak        ALLCAPS SCROLL          INPUTRI 1
+ppmstsexp       ALLCAPS SCROLL          INPUTRI 1
+ppmkol		ALLCAPS SCROLL		INPUTRI 1
+
+CALCS()
+cselect16       ppmsubtran == "K" && ppmkol != BLANKS && (ppmstsexp == "Z1" || ppmstsexp == "Z2")
+chanya16        lpilihan == "KOLSUP"
+
+SUBFILE(transg16)
+SFL_SELECT cselect16
+SFL_COND   chanya16
+SFL_LINES(10)
+
+SFL_TARGET
+ppmsub4stsby lK lK lINPG
+
+
+
+CALCS()
+cUBAH11		1104
+cjoinxjc	djoinxjc == 1
+careapiutang	"AREAPIUTANG01"
+cZ1Z2		"Z1Z2"
+cdariz1z2	ppmstsexp == "Z1 " || ppmstsexp == "Z2 "	
+cjoinpjd0	djoinpjd == 0
+cjoinpjd1	djoinpjd == 1
+
+MAP(mupdxjc3)
+cUBAH11		xjctunai 	DO_CALC
+
+DBCALCS(dupdxjc3)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      xjcnoprcidx	ppmnofak
+	DBC_COND	cjoinxjc
+	DBC_MAP         mupdxjc3
+
+CALCS()
+cjoinxjc11	djoinxjc11 == 1 
+cisibyr		ppmsmt1 - xjcstslap
+
+MAP(mupdxjc11)
+cisibyr 	xjcbyrdenda	DO_CALC
+
+DBCALCS(dupdxjc11)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      xjcnoprcidx	pjcnofak 
+        DBC_COND	cjoinxjc11
+	DBC_MAP         mupdxjc11
+
+CALCS()
+ctgltgt		20110503
+cjoinsup16	djoinsup16  == 0 
+cKL		"KL"
+
+MAP(mupdppm12)
+ctgltgt		ppmtgtgt        DO_CALC
+
+DBCALCS(dupdppm12)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      ppmprmidx ppmprm         
+        DBC_MAP         mupdppm12 
+
+
+
+MAP(maddsup16)
+ppmkol  	supkode		REPLACE
+cKL		suptype		DO_CALC
+
+DBCALCS(daddsup16)
+	DBC_COMMAND     ADD	
+	DBC_FILE	sup
+	DBC_COND	cjoinsup16
+	DBC_MAP         maddsup16 
+
+MAP(maddpjd)
+ppmstr1		pjdplg		REPLACE
+ppmnofak	pjdnobuk	REPLACE
+ppmkel		lppmkel15	REPLACE
+lppmkel15	pjdnofak	REPLACE
+careapiutang	pjdkdpry	DO_CALC
+ppmstsexp	pjdsts		REPLACE
+cZ1Z2		pjdsts   	DO_CALC_IF cdariz1z2
+
+DBCALCS(daddpjd)
+	DBC_COMMAND     ADD	
+	DBC_FILE	pjd
+	DBC_COND	cjoinpjd0
+	DBC_MAP         maddpjd
+
+
+CALCS
+cblank	BLANKS
+
+MAP(mupdpjd)
+cblank 		pjdplg		DO_CALC
+cblank  	pjdnobuk	DO_CALC 
+cblank   	pjdnofak	DO_CALC
+cblank      	pjdkdpry	DO_CALC
+cblank   	pjdsts		DO_CALC
+cblank 		pjdsts   	DO_CALC              
+
+DBCALCS(dupdpjd)
+	DBC_COMMAND     UPDATE
+	DBC_TARGET	pjdbukfakidx	ppmnofak lppmkel
+	DBC_COND	cjoinpjd1
+	DBC_MAP         mupdpjd
+
+MAP(mupdpjd1)
+ppmstr1		pjdplg		REPLACE
+ppmnofak	pjdnobuk	REPLACE
+ppmkel		lppmkel15	REPLACE
+lppmkel15	pjdnofak	REPLACE
+careapiutang	pjdkdpry	DO_CALC
+ppmstsexp	pjdsts		REPLACE
+cZ1Z2		pjdsts   	DO_CALC_IF cdariz1z2
+
+DBCALCS(dupdpjd1)
+	DBC_COMMAND     UPDATE
+	DBC_TARGET	pjdbukfakidx	ppmnofak lppmkel
+	DBC_COND	cjoinpjd1
+	DBC_MAP         mupdpjd1
+
+
+
+
+
+
+MAP(mapmap)
+cdpersen		lppersen		DO_CALC
+cppersen		ldpersen		DO_CALC
+cpersen			lpersen			DO_CALC_IF ctnol
+ppmkel			lppmkel			REPLACE
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mapmap
+
+CALCS()
+cZ0     "Z0"
+cZ1     "Z1"
+cZ2     "Z2"
+cZ4     "Z4"
+cZ6     "Z6"
+cZ7     "Z7"
+cZ8     "Z8"
+cZ9     "Z9"
+cZA     "ZA"
+cZB     "ZB"
+cZC     "ZC"
+cZD     "ZD"
+cZE     "ZE"
+cZF     "ZF"
+cZG     "ZG"
+cZH     "ZH"
+cZI     "ZI"
+cZJ     "ZJ"
+cZK     "ZK"
+cZL     "ZL"
+cZM     "ZM"
+cZN     "ZN"
+cZO     "ZO"
+cZP     "ZP"
+cZQ     "ZQ"
+cZR     "ZR"
+cZS     "ZS"
+cZASS     "ZASS"
+cZFIN     "ZFIN"
+cZDEN     "ZDEN"
+/*cZINK     "ZINK"*/
+cz0ok   ppmtglbyrsbl >= 20110501
+cz1ok   ppmtglbyrsbl >= 20110401 && ppmtglbyrsbl < 20110501
+cz2ok   ppmtglbyrsbl >= 20110301 && ppmtglbyrsbl < 20110401
+cz4ok   ppmtglbyrsbl >= 20110201 && ppmtglbyrsbl < 20110301
+cz6ok   ppmtglbyrsbl >= 20110101 && ppmtglbyrsbl < 20110201
+
+cz7ok   ppmtglbyrsbl >= 20101201 && ppmtglbyrsbl < 20110101
+cz8ok   ppmtglbyrsbl >= 20101101 && ppmtglbyrsbl < 20101201
+cz9ok   ppmtglbyrsbl >= 20101001 && ppmtglbyrsbl < 20101101
+czAok   ppmtglbyrsbl >= 20100901 && ppmtglbyrsbl < 20101001
+czBok   ppmtglbyrsbl >= 20100801 && ppmtglbyrsbl < 20100901
+czCok   ppmtglbyrsbl >= 20100701 && ppmtglbyrsbl < 20100801
+czDok   ppmtglbyrsbl >= 20100601 && ppmtglbyrsbl < 20100701
+czEok   ppmtglbyrsbl >= 20100501 && ppmtglbyrsbl < 20100601
+czFok   ppmtglbyrsbl >= 20100401 && ppmtglbyrsbl < 20100501
+czGok   ppmtglbyrsbl >= 20100301 && ppmtglbyrsbl < 20100401
+czHok   ppmtglbyrsbl >= 20100201 && ppmtglbyrsbl < 20100301
+czIok   ppmtglbyrsbl >= 20100101 && ppmtglbyrsbl < 20100201
+
+czJok   ppmtglbyrsbl >= 20091201 && ppmtglbyrsbl < 20100101
+czKok   ppmtglbyrsbl >= 20091101 && ppmtglbyrsbl < 20091201
+czLok   ppmtglbyrsbl >= 20091001 && ppmtglbyrsbl < 20091101
+czMok   ppmtglbyrsbl >= 20090901 && ppmtglbyrsbl < 20091001
+czNok   ppmtglbyrsbl >= 20090801 && ppmtglbyrsbl < 20090901
+czOok   ppmtglbyrsbl >= 20090701 && ppmtglbyrsbl < 20090801
+czPok   ppmtglbyrsbl >= 20090601 && ppmtglbyrsbl < 20090701
+czQok   ppmtglbyrsbl >= 20090501 && ppmtglbyrsbl < 20090601
+czRok   ppmtglbyrsbl >= 20090401 && ppmtglbyrsbl < 20090501
+czSok                               ppmtglbyrsbl < 20090401
+
+czXok	djoinkyl == 1 && (lkyldf9 == 5 || lkyldf9 == 6 || lkyldf9 == 11)
+czX2ok	djoindvs == 1 && ldvsrekbank == "A2"
+czX3ok	ppmsmt1 == ppmke
+czX4ok	ppmsmt1 == 1 && ppmsisa <= 0
+
+/*czX5ok	ppmstsprc == "INKS" && (ppmstsexp == "Z0" || ppmstsexp == "Z1" || ppmstsexp == "Z2" || ppmstsexp == "Z3")*/
+ 
+cASS		"ASS"
+cBLANKS		BLANKS
+cppmstsexpZASS ppmstsexp == "ZASS"
+cjoinpor1	djoinpor == 1
+cjoinsjl1	djoinsjl == 1
+
+CALCS()
+
+cK	ppmtype2 != "M" && ppmtype2 != "E" && ppmtotfakjs != 0 && ppmsisa != 0
+cxjctotfakK  (ppmsisa - ((ppmsmt1 - (ppmbyr/ppmtotfakjs)) * ppmtothrgret))
+
+cM 	ppmtype2 == "M"
+cxjctotfakM   ppmsisa 
+
+cE	ppmtype2 == "E"
+cxjctotfakE   ppmtbh9
+
+cminus1 ppmpkkawl < 0
+cminus2 xjctotfak < 0
+c0	0
+
+MAP(mupdppm)
+/*------------------------------------------------------*/
+cZ0             ppmstsexp   	DO_CALC_IF cz0ok
+cZ1             ppmstsexp   	DO_CALC_IF cz1ok
+cZ2             ppmstsexp   	DO_CALC_IF cz2ok  
+cZ4             ppmstsexp   	DO_CALC_IF cz4ok
+cZ6             ppmstsexp   	DO_CALC_IF cz6ok
+
+
+cZ7             ppmstsexp   	DO_CALC_IF cz7ok
+cZ8             ppmstsexp   	DO_CALC_IF cz8ok
+cZ9             ppmstsexp   	DO_CALC_IF cz9ok
+cZA             ppmstsexp   	DO_CALC_IF czAok
+cZB             ppmstsexp   	DO_CALC_IF czBok
+cZC             ppmstsexp   	DO_CALC_IF czCok
+cZD             ppmstsexp   	DO_CALC_IF czDok
+cZE             ppmstsexp   	DO_CALC_IF czEok
+cZF             ppmstsexp   	DO_CALC_IF czFok
+cZG             ppmstsexp   	DO_CALC_IF czGok
+cZH             ppmstsexp   	DO_CALC_IF czHok
+cZI             ppmstsexp   	DO_CALC_IF czIok
+cZJ             ppmstsexp   	DO_CALC_IF czJok
+cZK             ppmstsexp   	DO_CALC_IF czKok
+cZL             ppmstsexp   	DO_CALC_IF czLok
+cZM             ppmstsexp   	DO_CALC_IF czMok
+cZN             ppmstsexp   	DO_CALC_IF czNok
+cZO             ppmstsexp   	DO_CALC_IF czOok
+cZP             ppmstsexp   	DO_CALC_IF czPok
+cZQ             ppmstsexp   	DO_CALC_IF czQok
+cZR             ppmstsexp   	DO_CALC_IF czRok
+cZS             ppmstsexp   	DO_CALC_IF czSok
+cZASS		ppmstsexp	DO_CALC_IF czXok
+cZFIN		ppmstsexp	DO_CALC_IF czX2ok
+cZDEN		ppmstsexp	DO_CALC_IF czX3ok
+cZDEN		ppmstsexp	DO_CALC_IF czX4ok
+/*cZINK		ppmstsexp	DO_CALC_IF czX5ok*/
+lpryket2	ppmkdpos	REPLACE
+
+cxjctotfakK	ppmpkkawl	DO_CALC_IF cK     
+cxjctotfakM 	ppmpkkawl	DO_CALC_IF cM
+cxjctotfakE 	ppmpkkawl	DO_CALC_IF cE
+
+c0		ppmpkkawl	DO_CALC_IF cminus1
+lxjcbrdprm	ppmkel		REPLACE_IF cjoinxjc1
+
+DBCALCS(dupdppm)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      ppmprmidx    ppmprm
+	DBC_MAP         mupdppm
+
+
+CALCS()
+cblanks	BLANKS
+
+
+
+
+CALCS()
+cisi1	1
+cisi2	2
+cisi3	3
+cisi4	4
+cz1a	ppmstsexp == "Z1" && ppmsmt1 - xjcstslap >= 1
+
+cz2a	ppmstsexp == "Z2" && ppmsmt1 - xjcstslap >= 2
+cz2b	ppmstsexp == "Z2" && ppmsmt1 - xjcstslap == 1
+
+cz4a	ppmstsexp == "Z4" && ppmsmt1 - xjcstslap >= 3
+cz4b	ppmstsexp == "Z4" && ppmsmt1 - xjcstslap == 2
+cz4c	ppmstsexp == "Z4" && ppmsmt1 - xjcstslap == 1
+
+cz6a	ppmstsexp == "Z6" && ppmsmt1 - xjcstslap >= 4
+cz6b	ppmstsexp == "Z6" && ppmsmt1 - xjcstslap == 3
+cz6c	ppmstsexp == "Z6" && ppmsmt1 - xjcstslap == 2
+cz6d	ppmstsexp == "Z6" && ppmsmt1 - xjcstslap == 1
+
+
+MAP(mupdppm2)
+cisi1	ldum     	DO_CALC_IF cz1a
+
+cisi2	ldum     	DO_CALC_IF cz2a
+cisi1	ldum     	DO_CALC_IF cz2b
+
+cisi3	ldum     	DO_CALC_IF cz4a
+cisi2	ldum     	DO_CALC_IF cz4b
+cisi1	ldum     	DO_CALC_IF cz4c
+
+cisi4	ldum     	DO_CALC_IF cz6a
+cisi3	ldum     	DO_CALC_IF cz6b
+cisi2	ldum     	DO_CALC_IF cz6c
+cisi1	ldum     	DO_CALC_IF cz6d
+
+
+DBCALCS(dupdppm2)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      ppmprmidx    ppmprm
+	DBC_MAP         mupdppm2
+
+
+MAP(mupdpor)
+cBLANKS	porscr		DO_CALC
+cASS	porscr		DO_CALC_IF  cppmstsexpZASS
+
+
+DBCALCS(dupdpor)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      pornpoidx	ppmnofak
+	DBC_COND	cjoinpor1
+	DBC_MAP         mupdpor
+
+
+
+MAP(mupdxjc)
+ppmke		xjcstslap	REPLACE
+ppmtglbyrsbl	xjcpostgl2	REPLACE
+cxjctotfakK	xjctotfak	DO_CALC_IF cK     
+cxjctotfakM	xjctotfak	DO_CALC_IF cM 
+cxjctotfakE	xjctotfak	DO_CALC_IF cE 
+c0		xjctotfak	DO_CALC_IF cminus2
+
+DBCALCS(dupdxjc)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      xjcnoprcidx	ppmnofak
+	DBC_COND	cjoinxjc1
+	DBC_MAP         mupdxjc
+MAP(mupdsjl)
+ppmtglbyrsbl	sjltgl	REPLACE
+
+DBCALCS(dupdsjl)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET      sjlnoidx	ppmnofak
+	DBC_COND	cjoinsjl1
+	DBC_MAP         mupdsjl
+/*
+
+MAP(mupdppm4)
+cblanks		ppmkol		DO_CALC
+
+DBCALCS(dupdppm4)
+	DBC_COMMAND     UPDATE
+	DBC_TARGET	ppmprmidx	ppmprm
+	DBC_MAP         mupdppm4
+*/
+CALCS()
+ckosong		BLANKS
+
+MAP(mupdppm6)
+ckosong		ppmtgby1	DO_CALC
+
+DBCALCS(dupdppm6)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      ppmnofakidx pjcnofak    
+        DBC_MAP         mupdppm6
+CALCS()
+cisi1a		1
+cisi0		0
+cpjcfmY		pjcfm == "Y"
+cpjcfmT		pjcfm == "T"
+
+MAP(mupdxjc7)
+cisi1a       xjcjmlbawa        DO_CALC_IF cpjcfmY
+cisi0	    xjcjmlbawa	      DO_CALC_IF cpjcfmT 
+
+DBCALCS(dupdxjc7)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      xjcnoprcidx pjcnofak
+        DBC_MAP         mupdxjc7
+
+MAP(mupdxjc8)
+cisi0       xjcjmlbawa        DO_CALC
+
+DBCALCS(dupdxjc8)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      xjcprmidx xjcprm      
+        DBC_MAP         mupdxjc8
+
+
+DBCALCS(ddelpjd)
+        DBC_COMMAND     DELETE
+        DBC_TARGET      pjdprmidx pjdprm      
+
+
+
+
+MAP(mupdppm5)
+pjctgl          ppmtgby1        NO_REPLACE
+
+DBCALCS(dupdppm5)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      ppmnofakidx pjcnofak     
+        DBC_MAP         mupdppm5
+
+CALCS()
+/* update warna merah,kuning,hijau,biru */
+/*csiji		1
+cloro		2
+ctelu		3
+cenol		0*/
+
+cMERAH		"MERAH"
+cKUNING		"KUNING"
+cHIJAU		"HIJAU"
+cBIRU		"BIRU"
+cKOSONG		BLANKS
+
+cp10a		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 10 && ppmke == 0
+cp10b		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 10 && ppmke >= 0 && ppmke <= 3
+cp10c		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 10 && ppmke >= 4
+
+cp30a		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 10 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 30 && ppmke == 0
+cp30b		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 10 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 30 && ppmke >= 1 && ppmke <= 3
+cp30c		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 10 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 30 && ppmke >= 4
+
+cp50a		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 30 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 50 && ppmke == 0
+cp50b		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 30 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 50 && ppmke >= 1 && ppmke <= 3
+cp50c		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 30 && (((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) <= 50 && ppmke >= 4
+
+cpb50a		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 50 && ppmke == 0
+cpb50b		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 50 && ppmke >= 0 && ppmke <= 3
+cpb50c		(((ppmtotppn + ppmbyrum) / ppmtotfakbr) * 100) > 50 && ppmke >= 4
+
+MAP(mupdppmwarna)
+cblanks		ppmstr3		DO_CALC
+/*cendoll		ppmsmt5		DO_CALC*/
+
+cMERAH		ppmstr3		DO_CALC_IF	cp10a
+cMERAH		ppmstr3		DO_CALC_IF	cp10b
+cKOSONG		ppmstr3		DO_CALC_IF	cp10c
+
+cKUNING		ppmstr3		DO_CALC_IF	cp30a
+cKUNING		ppmstr3		DO_CALC_IF	cp30b
+cKUNING		ppmstr3		DO_CALC_IF	cp30c
+
+cKUNING		ppmstr3		DO_CALC_IF	cp50a
+cHIJAU		ppmstr3		DO_CALC_IF	cp50b
+cHIJAU		ppmstr3		DO_CALC_IF	cp50c
+
+
+cHIJAU		ppmstr3		DO_CALC_IF	cpb50a
+cHIJAU		ppmstr3		DO_CALC_IF	cpb50b
+cBIRU 		ppmstr3		DO_CALC_IF	cpb50c
+
+/*csiji		ppmsmt5		DO_CALC_IF	cp10a
+cloro		ppmsmt5		DO_CALC_IF	cp10b
+cenol		ppmsmt5		DO_CALC_IF	cp10c
+
+csiji		ppmsmt5		DO_CALC_IF	cp30a
+cloro		ppmsmt5		DO_CALC_IF	cp30b
+ctelu		ppmsmt5		DO_CALC_IF	cp30c
+
+csiji		ppmsmt5		DO_CALC_IF	cp50a
+cloro		ppmsmt5		DO_CALC_IF	cp50b
+ctelu		ppmsmt5		DO_CALC_IF	cp50c
+
+csiji		ppmsmt5		DO_CALC_IF	cpb50a
+cloro		ppmsmt5		DO_CALC_IF	cpb50b
+ctelu 		ppmsmt5		DO_CALC_IF	cpb50c*/
+
+DBCALCS(dupdppmwarna)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	ppmprmidx	ppmprm
+	DBC_COND	ctnol
+	DBC_MAP		mupdppmwarna
+
+CALCS()
+cbln   		"DESEMBER"
+cFID		"FID"
+cnofak		"D" + STRIP(kyls15)
+
+MAP(maddpry14)
+cnofak          prykode         DO_CALC 	/* FAKTUR	*/
+kyls15 		prystr10	REPLACE 	/* FAKTUR	*/
+cbln   		prysts    	DO_CALC
+kyls211		prykodepiu	REPLACE		/* KOLEK */
+kyls5   	prystsexp	REPLACE		/* USIA */
+kyls111		prylokasi	REPLACE		/* KET */
+cFID		pryplg		DO_CALC		
+
+DBCALCS(daddpry14)
+        DBC_COMMAND     ADD
+        DBC_FILE        pry
+        DBC_MAP         maddpry14
+
+DBCALCS(ddelpry)
+        DBC_COMMAND     DELETE
+        DBC_TARGET      pryprmidx pryprm     
+
+MAP(mupdxjc10)
+cblanks         xjcbyrdenda     DO_CALC
+
+DBCALCS(dupdxjc10)
+        DBC_COMMAND     UPDATE
+        DBC_TARGET      xjcprmidx      xjcprm
+        DBC_MAP         mupdxjc10 
+
+DBCALCS(ddelrpd)
+        DBC_COMMAND     DELETE
+        DBC_TARGET      rpdprmidx      rpdprm 
+
+
+SPCALCS(sptrans)
+	dmapmap
+
+IF	chanya1        dupdppm  
+IF	chanya1        dupdpor
+IF	chanya1        dupdxjc
+IF	chanya1        dupdsjl
+IF	chanya1        dupdppmwarna
+
+SPCALCS(sptransg1)
+	dmapmap
+IF	cok1a		dupdppmwarna
+
+SPCALCS(sptransg2)
+IF	chanya2		dupdppm2
+
+SPCALCS(sptransg3)
+IF	chanya3		dupdppm3
+IF	chanya3		dupdxjc3
+
+
+SPCALCS(sptransg4)
+	dmapmap
+IF	chanya4		dupdpjd 
+IF	chanya4		daddpjd 
+IF	chanya4		dupdpjd1 
+/*IF	chanya4		dupdppm4*/
+
+SPCALCS(sptransg5)
+ dupdppm5 
+
+SPCALCS(sptransg6)
+ dupdppm6
+
+SPCALCS(sptransg7)
+ dupdxjc7 
+
+SPCALCS(sptransg8)
+ dupdxjc8
+ 
+SPCALCS(sptransg9)
+ ddelpjd  
+
+SPCALCS(sptransg10)
+dupdxjc10
+
+SPCALCS(sptransg11)
+dupdxjc11
+
+SPCALCS(sptransg12)
+dupdppm12
+
+SPCALCS(sptransg13)
+ddelrpd
+
+SPCALCS(sptransg14)
+daddpry14 
+
+SPCALCS(sptransg15)
+ddelpry   
+
+SPCALCS(sptransg16)
+daddsup16 
+
+POSTING(trans)
+	PST_COMMAND sptrans
+
+POSTING(transg1)
+	PST_COMMAND sptransg1
+
+POSTING(transg2)
+	PST_COMMAND sptransg2
+
+POSTING(transg3)
+	PST_COMMAND sptransg3
+
+POSTING(transg4)
+	PST_COMMAND sptransg4
+
+POSTING(transg5)
+        PST_COMMAND sptransg5
+
+POSTING(transg6)
+        PST_COMMAND sptransg6
+
+POSTING(transg7)
+        PST_COMMAND sptransg7
+
+POSTING(transg8)
+        PST_COMMAND sptransg8
+POSTING(transg9)
+        PST_COMMAND sptransg9
+POSTING(transg10)
+        PST_COMMAND sptransg10
+POSTING(transg11)
+        PST_COMMAND sptransg11 
+POSTING(transg12)
+        PST_COMMAND sptransg12
+
+POSTING(transg13)
+        PST_COMMAND sptransg13
+
+POSTING(transg14)
+        PST_COMMAND sptransg14
+ 
+POSTING(transg15)
+        PST_COMMAND sptransg15
+POSTING(transg16)
+        PST_COMMAND sptransg16
+END_SCREEN

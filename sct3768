@@ -1,0 +1,214 @@
+SCREEN 3768 REPORT_TYPE Pros dan Lap Kom
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+
+
+LOCAL
+PGM_FIELDS
+lperiode		STRING			5
+lpil			INT2			2
+ltgl1			DATE			4
+ltgl2			DATE			4
+lhariefektif		INT2			2
+lefektif1bln		INT2			2
+lstspros		STRING			3
+lProsUlang		STRING			3
+lRAPO			STRING			5
+lTHBL			STRING			11
+
+l3761			STRING			5
+
+
+ltglFID1		DATE			4
+ltglFID2		DATE			4
+ltgl3MOB1		DATE			4
+ltgl3MOB2		DATE			4
+ltglFPD1		DATE			4
+ltglFPD2		DATE			4
+
+ldir			STRING			5
+
+
+
+DBCALCS(djoinrpd)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	rpdjnstypkod		lRAPO	lTHBL
+
+
+IMAGE(report) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3768              _________________________________                 @DATE
+/=============================================================================\
+|                        Laporan Raport Ns Grup                               |
+|------------------------------------t----------------------------------------|
+|1. Marketing                        | 100. Komisi Div piutang                |
+|2. Survey                           |                                        |
+|                                    \----------------------------------------|
+|                                                                             |
+|                                    /----------------------------------------|
+|                                    |        Setting awal FID-3MOB-FPD       |
+|/----------------------------------\|----------------------------------------|
+||       PROSES KOMISI              ||  FID  : _______ : _______              |
+||----------------------------------|| 3MOB  : _______ : _______              |
+||200. Komisi Kolektor Unit         ||  FPD  : _______ : _______              |
+||200. Komisi Kolektor Datun        ||----------------------------------------|
+||DIREKTORI LALU : ____             ||  JIKA ADA KESALAHAN DALAM PENGISIAN    |
+|\----------------------------------/|  TGL DIATAS HARAP HUB YANG BERWENANG   |
+|------------------------------------.----------------------------------------|
+| Periode : _____        Tanggal : ________ SD ________  Efektif : __ : __    |
+| Pilihan : ____         StsPros : __                 ProsUlang  : __         |
+\-----------------------------------------------------------------------------/
+
+
+FIELD(report)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+stspersh             	PROTECT                     	RI CENTER       1
+ltglFID1		PROTECT {DD-MM-YY}		INPUTRI		2
+ltglFID2		PROTECT {DD-MM-YY}		INPUTRI		3
+ltgl3MOB1		PROTECT {DD-MM-YY}		INPUTRI		4
+ltgl3MOB2		PROTECT {DD-MM-YY}		INPUTRI		5
+ltglFPD1		PROTECT {DD-MM-YY}		INPUTRI		6
+ltglFPD2		PROTECT {DD-MM-YY}		INPUTRI		7
+ldir			NOCHANGE 			INPUTRI		8
+lperiode		NOCHANGE			INPUTRI		9
+ltgl1			NONE {DD-MM-YY}			INPUTRI		10
+ltgl2			NONE {DD-MM-YY}			INPUTRI		11
+lefektif1bln		NUMERIC				INPUTRI		12
+lhariefektif		NUMERIC				INPUTRI		13
+lpil                 	NUMERIC                    	INPUTRI         14
+lstspros		PROTECT QPROTECT		INPUTRI		15
+lProsUlang		NOCHANGE			INPUTRI		16
+
+
+
+DEFAULTS(report)
+lProsUlang		DFALT_LIST		BLANKS T Y
+lefektif1bln		INIT			25
+lperiode		DFALT_SCAN		1105
+						1106
+						1107
+						1108
+						1109
+						1110
+						1111
+						1112
+
+l3761			INIT			3761
+
+ltgl1			INIT			{stsprjpiupr}
+ltgl2			INIT			{g_tgltrn}
+
+ldir			DFALT_SCAN		1104
+						
+
+
+EDITS(report)
+Periode tahun bulan harus di isi		lperiode	MANDATORY
+Pilihan laporan raport harus di isi		lpil		MANDATORY
+
+
+
+
+CALCS()
+cTHBLS			THBLS(g_tgltrn)
+cRAPO			"RAPO"
+
+MAP(mcek_isirpd)
+cTHBLS			lTHBL			DO_CALC
+cRAPO			lRAPO			DO_CALC
+
+
+CALCS()
+csudahada		djoinrpd == 1
+cY			"Y"
+ctidak_diulang		djoinrpd == 1
+cT			"T"
+cbelum_proses		djoinrpd == 0
+
+MAP(mtanya_ulang)
+cY			lstspros		DO_CALC_IF csudahada
+cT			lProsUlang		DO_CALC_IF ctidak_diulang
+cY			lProsUlang		DO_CALC_IF cbelum_proses
+
+CALCS()
+ctglFID2		stsprjss - 1
+
+MAP(msetawaltgl)
+stsprjpb		ltglFID1		REPLACE
+ctglFID2		ltglFID2		DO_CALC
+
+stsprjhd		ltgl3MOB1		REPLACE
+ctglFID2		ltgl3MOB2		DO_CALC
+
+stsprjpb		ltglFPD1		REPLACE
+ctglFID2		ltglFPD2		DO_CALC
+
+
+
+
+
+HOOKS(report)
+BEFORE_INPUT		cur_field=ltglFID1	DO_MAP SHOW	msetawaltgl
+BEFORE_INPUT		cur_field=ltgl1		DO_MAP SHOW 	mcek_isirpd
+BEFORE_INPUT		cur_field=lpil		DO_MAP SHOW	mtanya_ulang
+
+CALCS()
+c01			lpil == 1 && lProsUlang == "Y"
+c01a			lpil == 1 && lProsUlang == "T"
+
+MAP(mnext)
+lpil			r_double1		REPLACE
+lperiode		r_string1		REPLACE
+ltgl1			r_date1			REPLACE
+ltgl2			r_date2			REPLACE
+ldir			r_string2		REPLACE
+
+MAP(mqrts)
+lefektif1bln		r_double1		REPLACE
+lhariefektif		r_double2		REPLACE
+
+
+DEFAULTS(qperiode)
+rpdjns			INIT_QUERY		RAPO
+rpdtype			INIT_QUERY		{lperiode} : {lperiode}
+
+
+DEFAULTS(qkomisi)
+kodscr			INIT_QUERY		3761
+kodsts			INIT_QUERY		KL
+
+
+CALCS()
+c100			lpil == 100
+c200			lpil == 200
+
+RTREE(report011)
+RT_COND c01
+USES_SCRIPT(scr172p01.rts)
+RT_NXT_POSTING 171
+RT_NXT_MAP mnext
+RT_DEFAULT qperiode
+RT_MAP mqrts
+
+RTREE(report012)
+RT_COND c01a
+USES_SCRIPT(scr172p01.rts)
+RT_DEFAULT qperiode
+RT_MAP mqrts
+
+RTREE(report100)
+RT_COND	c100
+USES_SCRIPT(scr172p100.rts)
+RT_DEFAULT qkomisi
+RT_MAP mqrts
+
+RTREE(report200)
+RT_COND	c200
+USES_SCRIPT(scr172p100.rts)
+RT_NXT_POSTING 3769
+RT_NXT_MAP mnext
+RT_DEFAULT qkomisi
+RT_MAP mqrts
+
+END_SCREEN
+
+

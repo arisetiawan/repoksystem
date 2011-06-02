@@ -1,0 +1,139 @@
+SCREEN 3751  APP_TYPE Proses target real z1 ke xjc
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lthbl		STRING		5
+lrkptype	STRING		15
+lclctype2		STRING		15
+lZ1			STRING		5
+lK			STRING		2
+lppmsts			STRING		5
+lxjcpostgl2		DATE		4
+lppmkol			STRING		11
+lcabawl			STRING		11
+lcabakh			STRING		11
+
+
+
+CALCS()
+c0			0
+
+MAP(mjoinxjc)
+c0			lxjcpostgl2		DO_CALC
+xjcpostgl2		lxjcpostgl2		REPLACE
+xjcstr2			lppmkol			REPLACE
+
+DBCALCS(djoinxjc)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	ppmnofak
+	DBC_MAP		mjoinxjc
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3751              _________________________________                 @DATE
+   ===Proses pencapaian Kolektor untuk komisian=============================
+          Pilihan    : __                      Periode Komisi : _____
+          ltglawl    : ________ sd _________ 
+          ___________                          
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+   lthbl		 PROTECT QPROTECT		INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          1
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          1
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		5
+
+
+DEFAULTS(master)
+lrkptype		INIT		"KOLEK1104"
+lppmsts			INIT		INPG
+lK			INIT		K
+lZ1			INIT		Z1
+ltgl1			INIT		{stsprjpiupr}
+ltgl2			INIT		{g_tgltrn}
+lcabawl			INIT		BLANKS
+lcabakh			INIT		ZZZZ
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________   
+
+FIELDS(trans)
+cabno
+
+
+CALCS()
+cdari113
+(cabno == "0" ||
+cabno == "1" ||
+cabno == "2" ||
+cabno == "3" ||
+cabno == "4" ||
+cabno == "5" ||
+cabno == "6" ||
+cabno == "7" ||
+cabno == "8" ||
+cabno == "9"
+)
+
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT cdari113
+        SFL_TARGET_GTE
+		cabnoidx        lcabawl {lcabakh}
+
+CALCS()
+cblanks		BLANKS
+creal		"RZ1"
+ctgtrealZ1	ppmstsexp == "Z1" && (((ppmtgtgt != 0 && ((djoinxjc == 1 && lxjcpostgl2 != ppmtglret) || ppmtglret <= ltgl1)) && ((djoinxjc == 1 && ltgl2 + 1 >= lxjcpostgl2 + 1 && ppmtglret < ltgl1) || (djoinxjc == 1 && ppmtglret >= lxjcpostgl2 + 1 && ppmtglret >= ltgl1)))) 
+cdjoinxjc1	djoinxjc == 1
+
+
+MAP(mupdxjc)
+cblanks			xjcstr2			DO_CALC
+creal			xjcstr2			DO_CALC_IF ctgtrealZ1
+
+DBCALCS(dupdxjc)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	xjcnoprcidx	ppmnofak
+	DBC_MAP		mupdxjc
+
+SPCALCS(scanppm)
+	IF cdjoinxjc1 dupdxjc
+
+
+DBCALCS(dbscanppm)
+        DBC_COMMAND     SCANSCAN
+        DBC_TARGET      ppms1stt4tfk cabno lK lK
+	DBC_SPCALCS	scanppm
+
+
+SPCALCS(sptrans)
+	dbscanppm
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

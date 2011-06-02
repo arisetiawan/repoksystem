@@ -1,0 +1,531 @@
+SCREEN 3757  APP_TYPE Komisi Piutang 1
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+/*
+ltgl1           	DATE            	4
+lclctype2		STRING			15
+lthbl			STRING			5
+ltgl2           	DATE           	 	4*/
+lpil			INT2			2
+lPIU			STRING			11
+
+lrkpkdtgk      		STRING 			11  
+lrkpdf3        		DFLOAT  		8  
+lrkpdf4        		DFLOAT  		8  
+lrkpdf5        		DFLOAT  		8  
+lrkpdf6        		DFLOAT  		8  
+lrkpdf7        		DFLOAT  		8  
+lrkptype2      		STRING 			31  
+lrkpnip_piu		STRING			11
+lrkpnip_spv		STRING			11
+lrkptype_piu		STRING			15
+lrkptype_spv		STRING			15
+lrkpkodeclc		STRING			11
+lrkptype		STRING			15
+ldum_map		INT2			2
+
+lpencapaianZ1		DFLOAT			8
+lpencapaianZ2		DFLOAT			8
+lpencapaianZ3		DFLOAT			8
+lpencapaianZ4		DFLOAT			8
+
+lpencapaiasZ1		DFLOAT			8
+lpencapaiasZ2		DFLOAT			8
+lpencapaiasZ3		DFLOAT			8
+lpencapaiasZ4		DFLOAT			8
+
+ltdkcapaiz1		DFLOAT			8
+lcapaiz1		DFLOAT			8
+ltdkcapaiz2		DFLOAT			8
+lcapaiz2		DFLOAT			8
+ltdkcapaiz3		DFLOAT			8
+lcapaiz3		DFLOAT			8
+ltdkcapaiz4		DFLOAT			8
+lcapaiz4		DFLOAT			8
+
+ltdkcapasz1		DFLOAT			8
+lcapasz1		DFLOAT			8
+ltdkcapasz2		DFLOAT			8
+lcapasz2		DFLOAT			8
+ltdkcapasz3		DFLOAT			8
+lcapasz3		DFLOAT			8
+ltdkcapasz4		DFLOAT			8
+lcapasz4		DFLOAT			8
+
+lbyr2Z1PIU		DFLOAT			8
+lbyr2Z2PIU		DFLOAT			8
+lbyr2Z3PIU		DFLOAT			8
+lbyr2Z4PIU		DFLOAT			8
+
+lbyr2Z1SPV		DFLOAT			8
+lbyr2Z2SPV		DFLOAT			8
+lbyr2Z3SPV		DFLOAT			8
+lbyr2Z4SPV		DFLOAT			8
+
+lcapaibyr2Z1PIU		DFLOAT			8
+lcapaibyr2Z2PIU		DFLOAT			8
+lcapaibyr2Z3PIU		DFLOAT			8
+lcapaibyr2Z4PIU		DFLOAT			8
+
+lcapaibyr2Z1SPV		DFLOAT			8
+lcapaibyr2Z2SPV		DFLOAT			8
+lcapaibyr2Z3SPV		DFLOAT			8
+lcapaibyr2Z4SPV		DFLOAT			8
+
+lawalZ1PIU		DFLOAT			8
+lawalZ1SPV		DFLOAT			8
+lkymlokgjPIU		STRING			11
+lkymlokgjSPV		STRING			11
+lkymcabskrPIU		STRING			11
+lkymcabskrSPV		STRING			11
+
+DBCALCS(djoinrkp_piutang)
+	DBC_COMMAND		JOIN
+	DBC_TARGET		rkptynipdlr	lrkptype_piu	lrkpnip_piu	lrkpkdtgk	lrkpkodeclc	lrkptype2
+
+DBCALCS(djoinrkp_spv)
+	DBC_COMMAND		JOIN
+	DBC_TARGET		rkptynipdlr	lrkptype_spv	lrkpnip_spv	lrkpkdtgk	lrkpkodeclc	lrkptype2
+
+MAP(mjoinkymPIU)
+kymcabskr		lkymcabskrPIU		REPLACE
+
+DBCALCS(djoinkymPIU)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kymnipidx		lrkpnip_piu
+	DBC_MAP		mjoinkymPIU
+
+
+MAP(mjoinkymSPV)
+kymcabskr		lkymcabskrSPV		REPLACE
+
+DBCALCS(djoinkymSPV)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kymnipidx		lrkpnip_spv
+	DBC_MAP		mjoinkymSPV
+
+MAP(mcabPIU)
+cabstr1			lkymlokgjPIU		REPLACE
+
+DBCALCS(djoincabPIU)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx		lkymcabskrPIU
+	DBC_MAP		mcabPIU
+
+MAP(mcabSPV)
+cabstr1			lkymlokgjSPV		REPLACE
+
+DBCALCS(djoincabSPV)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx		lkymcabskrSPV
+	DBC_MAP		mcabSPV
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3757              _________________________________                 @DATE
+   ===PROSES PENCAPAIAN PIUTANG BERDASARKAN KOLEKTOR NYA====================
+          Pilihan    : __                      
+
+
+
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+
+
+DEFAULTS(master)
+lrkptype_piu		INIT		"PIUT1106"
+lrkptype_spv		INIT		"SPV1106"
+lrkptype		INIT		"KOLEK1106"
+lPIU			INIT		"PIU"
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________   _________ __________  ___________
+
+FIELDS(trans)
+prrrute       	NOCHANGE        INPUTRI 1
+prrstr7		PROTECT SCROLL	INPUTRI	2
+prrstr25	PROTECT SCROLL	INPUTRI	3
+prrstr26	PROTECT SCROLL	INPUTRI	4
+
+CALCS()
+ckolektorisi		prrstr7 != "" 
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT	ckolektorisi
+        SFL_TARGET
+		prrruteidx	lPIU
+
+
+IMAGE(trans2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+                     __________________   _________ __________ ___________
+
+FIELDS(trans2)
+rkptype       	NOCHANGE        INPUTRI 1
+rkpnip		PROTECT SCROLL	INPUTRI	2
+rkpkdtgk	PROTECT SCROLL	INPUTRI	3
+rkpkodeclc	PROTECT SCROLL	INPUTRI	4
+
+CALCS()
+crkpPIUTANG		(rkpkdtgk == "Z1" || rkpkdtgk == "Z2" || rkpkdtgk == "Z4" || rkpkdtgk == "Z6") && (rkpkodeclc == "BYR" || rkpkodeclc == "BNS" || rkpkodeclc == "NOTR") 
+
+
+SUBFILE(trans2)
+        SFL_LINES(10)
+	SFL_SELECT	crkpPIUTANG
+        SFL_TARGET
+		rkptynipdlr 	lrkptype 	prrstr7
+
+
+/**** filerkp 
+	rkpprm          INT4  4  Key Primary
+        rkpnip        STRING 11  No Nip
+        rkpdlr        STRING 11  Kode Dealer
+        rkpkdtgk      STRING 11  Kode Tunggak
+        rkptype       STRING 15  Type Data
+        rkpdf1        DFLOAT  8  Df1
+        rkpdf2        DFLOAT  8  Df2
+        rkpdf3        DFLOAT  8  Df3
+        rkpdf4        DFLOAT  8  Df4
+        rkpdf5        DFLOAT  8  Df5
+        rkpdf6        DFLOAT  8  Df6
+        rkpdf7        DFLOAT  8  Df7
+        rkpdf8        DFLOAT  8  Df8
+        rkptype2      STRING 31  Type 2(byr1,byr2,kelurahan Dll)
+        rkptgl          DATE  4  Tanggal
+        rkpkodeclc    STRING 11  Kode Hasil Clc
+Index
+        rkpprmidx rkpprm
+        rkptypdlrtgk rkptype rkpdlr rkpkdtgk dup
+        rkptynipdlr rkptype rkpnip rkpkdtgk rkpkodeclc rkptype2
+
+*****/
+
+
+
+CALCS()
+cdjrkp_piutang		djoinrkp_piutang == 0
+cdjrkp_spv		djoinrkp_spv == 0
+cdjoinkym1SPV		djoinkymSPV == 1
+cdjoinkym1PIU		djoinkymPIU == 1
+cblanks			BLANKS
+
+cdjoincabPIU		djoincabPIU == 1
+cdjoincabSPV		djoincabSPV == 1
+
+MAP(mmapmap2)
+prrstr25		lrkpnip_piu		REPLACE
+prrstr26		lrkpnip_spv		REPLACE
+rkpkdtgk		lrkpkdtgk		REPLACE
+rkpkodeclc		lrkpkodeclc		REPLACE
+rkptype2		lrkptype2		REPLACE
+rkpdf3			lrkpdf3			REPLACE
+rkpdf4			lrkpdf4			REPLACE
+rkpdf5			lrkpdf5			REPLACE
+rkpdf6			lrkpdf6			REPLACE
+rkpdf7			lrkpdf7			REPLACE
+
+cblanks			lkymcabskrPIU		DO_CALC
+cblanks			lkymcabskrPIU		DO_CALC
+
+lkymcabskrPIU		lkymcabskrPIU		REPLACE_IF cdjoinkym1PIU
+lkymcabskrSPV		lkymcabskrSPV		REPLACE_IF cdjoinkym1SPV
+
+
+cblanks			lkymlokgjPIU		DO_CALC
+cblanks			lkymlokgjSPV		DO_CALC
+
+lkymlokgjPIU		lkymlokgjPIU		REPLACE_IF cdjoincabPIU
+lkymlokgjSPV		lkymlokgjSPV		REPLACE_IF cdjoincabSPV
+
+
+
+DBCALCS(dmapmap2)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap2
+
+MAP(maddrkp_piutang)
+lrkptype_piu		rkptype			REPLACE
+lrkpnip_piu		rkpnip			REPLACE
+lrkpkdtgk		rkpkdtgk		REPLACE
+lrkpkodeclc		rkpkodeclc		REPLACE
+lrkptype2		rkptype2		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lkymlokgjPIU		rkpdlr			REPLACE
+
+DBCALCS(daddrkp_piutang)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp_piutang
+
+MAP(maddrkp_spv)
+lrkptype_spv		rkptype			REPLACE
+lrkpnip_spv		rkpnip			REPLACE
+lrkpkdtgk		rkpkdtgk		REPLACE
+lrkpkodeclc		rkpkodeclc		REPLACE
+lrkptype2		rkptype2		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lkymlokgjSPV		rkpdlr			REPLACE
+
+DBCALCS(daddrkp_spv)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp_spv
+
+CALCS()
+crkpdf3			lrkpdf3 + rkpdf3
+crkpdf4			lrkpdf4 + rkpdf4
+crkpdf5			lrkpdf5 + rkpdf5
+crkpdf6			lrkpdf6 + rkpdf6
+crkpdf7			lrkpdf7 + rkpdf7
+
+MAP(mupdrkp_piu)
+crkpdf3			rkpdf3			DO_CALC
+crkpdf4			rkpdf4			DO_CALC
+crkpdf5			rkpdf5			DO_CALC
+crkpdf6			rkpdf6			DO_CALC
+crkpdf7			rkpdf7			DO_CALC
+
+DBCALCS(dupdrkp_piutang)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype_piu	lrkpnip_piu	lrkpkdtgk	lrkpkodeclc	lrkptype2
+	DBC_MAP		mupdrkp_piu
+
+MAP(mupdrkp_spv)
+crkpdf3			rkpdf3			DO_CALC
+crkpdf4			rkpdf4			DO_CALC
+crkpdf5			rkpdf5			DO_CALC
+crkpdf6			rkpdf6			DO_CALC
+crkpdf7			rkpdf7			DO_CALC
+
+DBCALCS(dupdrkp_spv)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype_spv	lrkpnip_spv	lrkpkdtgk	lrkpkodeclc	lrkptype2
+	DBC_MAP		mupdrkp_spv
+
+CALCS()
+ctdkcapaiZ1ISI		lcapaiz1 > 0
+ctdkcapaiZ2ISI		lcapaiz2 > 0
+ctdkcapaiZ3ISI		lcapaiz3 > 0
+ctdkcapaiZ4ISI		lcapaiz4 > 0
+
+ctdkcapasZ1ISI		lcapasz1 > 0
+ctdkcapasZ2ISI		lcapasz2 > 0
+ctdkcapasZ3ISI		lcapasz3 > 0
+ctdkcapasZ4ISI		lcapasz4 > 0
+
+
+cpencapaianZ1		(ltdkcapaiz1 / lcapaiz1) * 100
+cpencapaianZ2		(ltdkcapaiz2 / lcapaiz2) * 100
+cpencapaianZ3		(ltdkcapaiz3 / lcapaiz3) * 100
+cpencapaianZ4		(ltdkcapaiz4 / lcapaiz4) * 100
+
+cpencapaiasZ1		(ltdkcapasz1 / lcapasz1) * 100
+cpencapaiasZ2		(ltdkcapasz2 / lcapasz2) * 100
+cpencapaiasZ3		(ltdkcapasz3 / lcapasz3) * 100
+cpencapaiasZ4		(ltdkcapasz4 / lcapasz4) * 100
+
+capaibyr2Z1PIU		(lbyr2Z1PIU / lawalZ1PIU) * 100
+capaibyr2Z2PIU		(lbyr2Z2PIU / lcapaiz2) * 100
+capaibyr2Z3PIU		(lbyr2Z3PIU / lcapaiz3) * 100
+capaibyr2Z4PIU		(lbyr2Z4PIU / lcapaiz4) * 100
+
+capaibyr2Z1SPV		(lbyr2Z1SPV / lawalZ1SPV) * 100
+capaibyr2Z2SPV		(lbyr2Z2SPV / lcapasz2) * 100
+capaibyr2Z3SPV		(lbyr2Z3SPV / lcapasz3) * 100
+capaibyr2Z4SPV		(lbyr2Z4SPV / lcapasz4) * 100
+
+
+MAP(mmapmap)
+cpencapaianZ1		lpencapaianZ1		DO_CALC_IF ctdkcapaiZ1ISI
+cpencapaianZ2		lpencapaianZ2		DO_CALC_IF ctdkcapaiZ2ISI
+cpencapaianZ3		lpencapaianZ3		DO_CALC_IF ctdkcapaiZ3ISI			
+cpencapaianZ4		lpencapaianZ4		DO_CALC_IF ctdkcapaiZ4ISI			
+
+cpencapaiasZ1		lpencapaiasZ1		DO_CALC_IF ctdkcapasZ1ISI			
+cpencapaiasZ2		lpencapaiasZ2		DO_CALC_IF ctdkcapasZ2ISI			
+cpencapaiasZ3		lpencapaiasZ3		DO_CALC_IF ctdkcapasZ3ISI			
+cpencapaiasZ4		lpencapaiasZ4		DO_CALC_IF ctdkcapasZ4ISI			
+
+capaibyr2Z1PIU		lcapaibyr2Z1PIU		DO_CALC_IF ctdkcapaiZ1ISI
+capaibyr2Z2PIU		lcapaibyr2Z2PIU		DO_CALC_IF ctdkcapaiZ2ISI
+capaibyr2Z3PIU		lcapaibyr2Z3PIU		DO_CALC_IF ctdkcapaiZ3ISI
+capaibyr2Z4PIU		lcapaibyr2Z4PIU		DO_CALC_IF ctdkcapaiZ4ISI
+
+capaibyr2Z1SPV		lcapaibyr2Z1SPV		DO_CALC_IF ctdkcapasZ1ISI
+capaibyr2Z2SPV		lcapaibyr2Z2SPV		DO_CALC_IF ctdkcapasZ2ISI
+capaibyr2Z3SPV		lcapaibyr2Z3SPV		DO_CALC_IF ctdkcapasZ3ISI
+capaibyr2Z4SPV		lcapaibyr2Z4SPV		DO_CALC_IF ctdkcapasZ4ISI
+
+
+
+ldum_map		ldum_map		REPLACE
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+
+CALCS()
+chanyaz1		rkpkdtgk == "Z1" && rkpkodeclc != "BNS"  && rkpkodeclc != "NOTR"
+chanyaz1byr0		rkpkdtgk == "Z1" && rkpkodeclc == "BYR0"
+
+chanyaz2		rkpkdtgk == "Z2" && rkpkodeclc != "BNS"  && rkpkodeclc != "NOTR"
+chanyaz2byr0		rkpkdtgk == "Z2" && rkpkodeclc == "BYR0"
+
+chanyaz3		rkpkdtgk == "Z4" && rkpkodeclc != "BNS"  && rkpkodeclc != "NOTR"
+chanyaz3byr0		rkpkdtgk == "Z4" && rkpkodeclc == "BYR0"
+
+chanyaz4		rkpkdtgk == "Z6" && rkpkodeclc != "BNS"  && rkpkodeclc != "NOTR"
+chanyaz4byr0		rkpkdtgk == "Z6" && rkpkodeclc == "BYR0"
+
+cawalZ1			rkpkdtgk == "Z1" && rkpkodeclc != "BNS"
+
+
+cbyrdiatas2Z1		rkpkdtgk == "Z1" && rkpkodeclc != "BYR0" && rkpkodeclc != "BNS" && rkpkodeclc != "BYR1" && rkpkodeclc != "NO"
+cbyrdiatas2Z2		rkpkdtgk == "Z2" && rkpkodeclc != "BYR0" && rkpkodeclc != "BNS" && rkpkodeclc != "BYR1" && rkpkodeclc != "NO"
+cbyrdiatas2Z3		rkpkdtgk == "Z4" && rkpkodeclc != "BYR0" && rkpkodeclc != "BNS" && rkpkodeclc != "BYR1" && rkpkodeclc != "NO"
+cbyrdiatas2Z4		rkpkdtgk == "Z6" && rkpkodeclc != "BYR0" && rkpkodeclc != "BNS" && rkpkodeclc != "BYR1" && rkpkodeclc != "NO"
+
+MAP(mscanbns_piu)
+rkpdf4			lcapaiz1		REPLACE_IF chanyaz1
+rkpdf4			ltdkcapaiz1		REPLACE_IF chanyaz1byr0
+
+rkpdf4			lcapaiz2		REPLACE_IF chanyaz2
+rkpdf4			ltdkcapaiz2		REPLACE_IF chanyaz2byr0
+
+rkpdf4			lcapaiz3		REPLACE_IF chanyaz3
+rkpdf4			ltdkcapaiz3		REPLACE_IF chanyaz3byr0
+
+rkpdf4			lcapaiz4		REPLACE_IF chanyaz4
+rkpdf4			ltdkcapaiz4		REPLACE_IF chanyaz4byr0
+
+rkpdf4			lbyr2Z1PIU		REPLACE_IF cbyrdiatas2Z1
+rkpdf4			lbyr2Z2PIU		REPLACE_IF cbyrdiatas2Z2
+rkpdf4			lbyr2Z3PIU		REPLACE_IF cbyrdiatas2Z3
+rkpdf4			lbyr2Z4PIU		REPLACE_IF cbyrdiatas2Z4
+
+rkpdf4			lawalZ1PIU		REPLACE_IF cawalZ1
+
+DBCALCS(dbscanbns_piu)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptynipdlr 	lrkptype_piu 	lrkpnip_piu 
+	DBC_SUM_MAP	mscanbns_piu
+
+
+
+MAP(mscanbns_spv)
+rkpdf4			lcapasz1		REPLACE_IF chanyaz1
+rkpdf4			ltdkcapasz1		REPLACE_IF chanyaz1byr0
+
+rkpdf4			lcapasz2		REPLACE_IF chanyaz2
+rkpdf4			ltdkcapasz2		REPLACE_IF chanyaz2byr0
+
+rkpdf4			lcapasz3		REPLACE_IF chanyaz3
+rkpdf4			ltdkcapasz3		REPLACE_IF chanyaz3byr0
+
+rkpdf4			lcapasz4		REPLACE_IF chanyaz4
+rkpdf4			ltdkcapasz4		REPLACE_IF chanyaz4byr0
+
+rkpdf4			lbyr2Z1SPV		REPLACE_IF cbyrdiatas2Z1
+rkpdf4			lbyr2Z2SPV		REPLACE_IF cbyrdiatas2Z2
+rkpdf4			lbyr2Z3SPV		REPLACE_IF cbyrdiatas2Z3
+rkpdf4			lbyr2Z4SPV		REPLACE_IF cbyrdiatas2Z4
+
+rkpdf4			lawalZ1SPV		REPLACE_IF cawalZ1
+
+DBCALCS(dbscanbns_spv)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptynipdlr 	lrkptype_spv 	lrkpnip_spv 
+	DBC_SUM_MAP	mscanbns_spv
+
+
+CALCS()
+cusiaZ1			rkpkdtgk == "Z1"
+cusiaZ2			rkpkdtgk == "Z2"
+cusiaZ3			rkpkdtgk == "Z4"
+cusiaZ4			rkpkdtgk == "Z6"
+
+
+MAP(mrangePIU)
+lpencapaianZ1		rkpdf2			REPLACE_IF cusiaZ1
+lpencapaianZ2		rkpdf2			REPLACE_IF cusiaZ2
+lpencapaianZ3		rkpdf2			REPLACE_IF cusiaZ3
+lpencapaianZ4		rkpdf2			REPLACE_IF cusiaZ4
+
+lcapaibyr2Z1PIU		rkpdf1			REPLACE_IF cusiaZ1
+lcapaibyr2Z2PIU		rkpdf1			REPLACE_IF cusiaZ2
+lcapaibyr2Z3PIU		rkpdf1			REPLACE_IF cusiaZ3
+lcapaibyr2Z4PIU		rkpdf1			REPLACE_IF cusiaZ4
+
+
+DBCALCS(dupdrange_piu)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr	lrkptype_piu	lrkpnip_piu
+	DBC_LAST_TARGET	rkptynipdlr	lrkptype_piu	lrkpnip_piu
+	DBC_MAP		mrangePIU
+
+
+MAP(mrangeSPV)
+lpencapaiasZ1           rkpdf2                  REPLACE_IF cusiaZ1
+lpencapaiasZ2           rkpdf2                  REPLACE_IF cusiaZ2
+lpencapaiasZ3           rkpdf2                  REPLACE_IF cusiaZ3
+lpencapaiasZ4           rkpdf2                  REPLACE_IF cusiaZ4
+
+lcapaibyr2Z1SPV		rkpdf1			REPLACE_IF cusiaZ1
+lcapaibyr2Z2SPV		rkpdf1			REPLACE_IF cusiaZ2
+lcapaibyr2Z3SPV		rkpdf1			REPLACE_IF cusiaZ3
+lcapaibyr2Z4SPV		rkpdf1			REPLACE_IF cusiaZ4
+
+DBCALCS(dupdrange_spv)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr	lrkptype_spv	lrkpnip_spv
+	DBC_LAST_TARGET	rkptynipdlr	lrkptype_spv	lrkpnip_spv
+	DBC_MAP		mrangeSPV
+
+
+SPCALCS(sptrans)
+dbscanbns_piu
+dbscanbns_spv
+dmapmap
+dupdrange_piu
+dupdrange_spv
+
+
+SPCALCS(sptrans2)
+dmapmap2
+IF cdjrkp_piutang	daddrkp_piutang
+IF cdjrkp_spv		daddrkp_spv
+dupdrkp_piutang
+dupdrkp_spv
+
+
+POSTING(trans)
+PST_COMMAND	sptrans
+PST_CMD_EXE_TIME AFTER_DETAIL
+
+POSTING(trans2)
+PST_COMMAND	sptrans2
+
+END_SCREEN

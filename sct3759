@@ -1,0 +1,191 @@
+SCREEN 3759  APP_TYPE Proses Pot Kom PiutSPV
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+lpil		INT2		2
+lrkptype	STRING		15
+ltypebayar		STRING		11
+l3761			STRING		5
+lkodsts			STRING		3
+lOPEN			STRING		5
+ltype			STRING		11
+ltotalz1		DFLOAT		8
+ltotalz2		DFLOAT		8
+ltotalz4		DFLOAT		8
+ltotalz6		DFLOAT		8
+lbawaZ1			DFLOAT		8
+lbawaZ2			DFLOAT		8
+lbawaZ4			DFLOAT		8
+lbawaZ6			DFLOAT		8
+lkenapot		DFLOAT		8
+lPIU			STRING		11
+lkodebro		STRING		11
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3759              _________________________________                 @DATE
+   ===MEMPROSES POTONGAN PIUTANG DAN SPV ===================================
+          Pilihan    : __                      
+   1.Potongan Piutang
+   2.Potongan SPV    
+
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+
+
+DEFAULTS(master)
+ltypebayar		DFALT_SCAN	BYR1
+					BYR2
+					BYR3
+					BYR4
+lkodsts			INIT		KO
+l3761			INIT		3761
+lOPEN			INIT		OPEN
+lPIU			INIT		PIU
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+CALCS()
+cpilihan1		lpil == 1
+cpilihan2		lpil == 2
+cPIUT			"PIUT1105"
+cSPV			"SPV1105"
+ctyPIU			"PIU"
+ctySPV			"SPI"
+
+
+MAP(misiawal)
+cPIUT			lrkptype		DO_CALC_IF cpilihan1
+cSPV			lrkptype		DO_CALC_IF cpilihan2
+ctyPIU			ltype 			DO_CALC_IF cpilihan1
+ctySPV			ltype 			DO_CALC_IF cpilihan2
+
+HOOKS(master)
+AFTER_INPUT		cur_field=lpil		DO_MAP SHOW misiawal
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+____________
+
+FIELDS(trans)
+prrstr25       		NOCHANGE        	INPUTRI 1
+
+CALCS()
+cstr15			(lpil == 1 && prrstr25 != "") || (lpil == 2 && prrstr26 != "")
+
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT		cstr15
+        SFL_TARGET
+		prrruteidx	lPIU
+
+
+CALCS()
+ckenapotong		lkenapot == 0 && ((ltotalz1 == 0 && lbawaZ1 != 0) || (ltotalz2 == 0 && lbawaZ2 != 0) || (ltotalz4 == 0 && lbawaZ4 != 0) || (ltotalz6 == 0 && lbawaZ6 != 0))
+cpotonganz1		-1 * (ltotalz1 * 0.5) + -1 * (ltotalz2 * 0.5) + -1 * (ltotalz4 * 0.5) + -1 * (ltotalz6 * 0.5)
+cPOT			"POTP"
+cPOTONGAN		"POTONGAN"
+
+ctotalz1isi		kodkdtgk == "Z1" && kodtype == ltype
+ctotalz2isi		kodkdtgk == "Z2" && kodtype == ltype
+ctotalz4isi		kodkdtgk == "Z4" && kodtype == ltype
+ctotalz6isi		kodkdtgk == "Z6" && kodtype == ltype
+
+cKO			"KO"
+cPT			"PP"
+cPS			"PS"
+
+
+
+MAP(maddkod)
+l3761			kodscr			REPLACE
+cPOTONGAN		kodnobuk		DO_CALC
+cPOTONGAN		kodnofak		DO_CALC
+prrstr25		kodkode			REPLACE_IF cpilihan1
+prrstr26		kodkode			REPLACE_IF cpilihan2
+cpotonganz1		kodtotal		DO_CALC
+cPOT			kodtype			DO_CALC
+g_tgltrn		kodtgl			REPLACE
+cKO			kodsts			DO_CALC
+cPT			kodkdtgk		DO_CALC_IF cpilihan1
+cPS			kodkdtgk		DO_CALC_IF cpilihan2
+
+
+DBCALCS(daddkod)
+	DBC_COMMAND	ADD
+	DBC_FILE	kod
+	DBC_MAP		maddkod
+
+CALCS()
+ckenapot		kodnobuk == "POTONGAN"
+
+MAP(mscankod)
+kodtotal		ltotalz1		REPLACE_IF ctotalz1isi
+kodtotal		ltotalz2		REPLACE_IF ctotalz2isi
+kodtotal		ltotalz4		REPLACE_IF ctotalz4isi
+kodtotal		ltotalz6		REPLACE_IF ctotalz6isi
+
+kodtotal		lkenapot		REPLACE_IF ckenapot
+
+DBCALCS(dbscankod)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	kodstsscrkod	lkodsts	l3761	lkodebro
+	DBC_SUM_MAP	mscankod
+
+CALCS()
+cz1ada			rkpkdtgk == "Z1" && rkpkodeclc == "BNS"
+cz2ada			rkpkdtgk == "Z2" && rkpkodeclc == "BNS"
+cz4ada			rkpkdtgk == "Z4" && rkpkodeclc == "BNS"
+cz6ada			rkpkdtgk == "Z6" && rkpkodeclc == "BNS"
+
+MAP(mscanrkp)
+rkpdf3			lbawaZ1			REPLACE_IF cz1ada
+rkpdf3			lbawaZ2			REPLACE_IF cz2ada
+rkpdf3			lbawaZ4			REPLACE_IF cz4ada
+rkpdf3			lbawaZ6			REPLACE_IF cz6ada
+
+DBCALCS(dbscanrkp)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptynipdlr lrkptype lkodebro
+	DBC_SUM_MAP	mscanrkp
+
+
+MAP(mmapmap)
+prrstr25		lkodebro		REPLACE_IF cpilihan1
+prrstr26		lkodebro		REPLACE_IF cpilihan2
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+
+SPCALCS(sptrans)
+dmapmap
+dbscanrkp
+dbscankod
+IF ckenapotong daddkod
+
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

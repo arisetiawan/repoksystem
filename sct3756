@@ -1,0 +1,216 @@
+SCREEN 3756  APP_TYPE Gabung Komisi P345
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+/*
+ltgl1           DATE            4
+lclctype2		STRING		15
+lthbl		STRING		5
+ltgl2           DATE            4*/
+lpil		INT2		2
+
+lrkpnip        STRING 		11  
+lrkpdlr        STRING 		11  
+lrkpkdtgk      STRING 		11  
+lrkptype       STRING 		15  
+lrkpdf1        DFLOAT  		8  
+lrkpdf2        DFLOAT  		8  
+lrkpdf3        DFLOAT  		8  
+lrkpdf4        DFLOAT  		8  
+lrkpdf5        DFLOAT  		8  
+lrkpdf6        DFLOAT  		8  
+lrkpdf7        DFLOAT  		8  
+lrkpdf8        DFLOAT  		8  
+lrkptype2      STRING 		31  
+lrkptgl          DATE  		4  
+lrkpkodeclc    STRING 		11  
+lpersen_capai	DFLOAT		8
+ltotfak		DFLOAT		8
+lhasil		DFLOAT		8
+ltotbyr2	DFLOAT		8
+
+
+DBCALCS(djoinkym)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kymnipidx	rkpnip
+
+DBCALCS(djoinrkp)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	rkptynipdlr	lrkptype lrkpnip lrkpkdtgk lrkpkodeclc lrkptype2
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3756              _________________________________                 @DATE
+   ===PROSES PENGGABUNGAN PENCAPAIAN KOMISI P345 ===========================
+          Pilihan    : __   1.Penarikan 345      2.Remedial
+
+
+
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+
+
+DEFAULTS(master)
+lrkptype		INIT		"KOLEK1106"
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________   _________ __________ 
+
+FIELDS(trans)
+rkptype       	NOCHANGE        INPUTRI 1
+rkpnip		PROTECT SCROLL	INPUTRI	2
+rkpkodeclc	PROTECT SCROLL	INPUTRI	3
+
+CALCS()
+c0			0
+cdet_trans2		(lpil == 1 && djoinkym == 1 && (rkpkdtgk == "Z7" || rkpkdtgk == "Z8" || rkpkdtgk == "Z9")) || (lpil == 2 && rkpkdtgk > "Z9")
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT		cdet_trans2
+
+        SFL_TARGET
+		rkptynipdlr	lrkptype
+
+CALCS()
+cX7			"X7"
+cXA			"XA"
+cpilihan1		lpil == 1
+cpilihan2		lpil == 2
+
+
+MAP(mmapmap)
+c0			lrkpdf3		DO_CALC
+c0			ltotbyr2	DO_CALC
+rkpdf3			lrkpdf3		REPLACE
+
+rkpnip			lrkpnip		REPLACE
+rkpdlr			lrkpdlr		REPLACE
+rkptype			lrkptype	REPLACE
+cX7			lrkpkdtgk	DO_CALC_IF cpilihan1
+cXA			lrkpkdtgk	DO_CALC_IF cpilihan2
+rkpdf1			lrkpdf1		REPLACE
+rkpdf2			lrkpdf2		REPLACE
+rkpdf3			lrkpdf3		REPLACE
+rkpdf4			lrkpdf4		REPLACE
+rkpdf5			lrkpdf5		REPLACE
+rkpdf6			lrkpdf6		REPLACE
+rkpdf7			lrkpdf7		REPLACE
+rkpdf8			lrkpdf8		REPLACE
+rkptype2		lrkptype2	REPLACE
+rkptgl			lrkptgl		REPLACE
+rkpkodeclc		lrkpkodeclc	REPLACE
+
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+
+CALCS()
+cdjoinrkp0	djoinrkp == 0
+
+MAP(maddrkp)
+lrkpnip		rkpnip		REPLACE
+lrkpdlr		rkpdlr		REPLACE
+lrkpkdtgk	rkpkdtgk	REPLACE
+lrkptype	rkptype		REPLACE
+lrkptype2	rkptype2	REPLACE
+lrkptgl		rkptgl		REPLACE
+lrkpkodeclc	rkpkodeclc	REPLACE
+
+DBCALCS(daddrkp)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp
+
+CALCS()
+crkpdf3			lrkpdf3 + rkpdf3
+crkpdf4			lrkpdf4 + rkpdf4
+crkpdf5			lrkpdf5 + rkpdf5
+crkpdf6			lrkpdf6 + rkpdf6
+crkpdf7			lrkpdf7 + rkpdf7
+
+MAP(mupdrkp)
+crkpdf3			rkpdf3		DO_CALC
+crkpdf4			rkpdf4		DO_CALC
+crkpdf5			rkpdf5		DO_CALC
+crkpdf6			rkpdf6		DO_CALC
+crkpdf7			rkpdf7		DO_CALC
+
+
+DBCALCS(dupdrkp)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype lrkpnip lrkpkdtgk lrkpkodeclc lrkptype2
+	DBC_MAP		mupdrkp
+
+CALCS()
+cmasuk_totfak		rkpkodeclc != "REW" && rkpkodeclc != "NO" && rkpkodeclc != "BNS" && rkpkodeclc != "POS"
+crkpselain_byr0		rkpkodeclc != "REW" && rkpkodeclc != "NO" && rkpkodeclc != "BNS" && rkpkodeclc != "POS" && rkpkodeclc == "BYR0"
+cbyr234			rkpkodeclc == "BYR2" || rkpkodeclc == "BYR3" || rkpkodeclc == "BYR4"
+
+MAP(mscanrkp)
+rkpdf4			ltotfak		REPLACE_IF cmasuk_totfak
+rkpdf4			lhasil		REPLACE_IF crkpselain_byr0
+rkpdf3			ltotbyr2	REPLACE_IF cbyr234
+
+DBCALCS(dbscanrkp)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptynipdlr	lrkptype lrkpnip lrkpkdtgk 
+	DBC_SUM_MAP	mscanrkp
+
+CALCS()
+cpencapaian		(lhasil / ltotfak) * 100
+clebih0			ltotfak > 0
+
+MAP(mmapmap2)
+c0			lpersen_capai		DO_CALC
+cpencapaian		lpersen_capai		DO_CALC_IF clebih0
+
+DBCALCS(dmapmap2)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap2
+
+MAP(mupdrkp2)
+lpersen_capai		rkpdf2			REPLACE
+ltotbyr2		rkpdf8			REPLACE
+
+
+DBCALCS(dupdrkp2)
+        DBC_COMMAND     UPDATE_RANGE
+        DBC_TARGET      rkptynipdlr     lrkptype lrkpnip lrkpkdtgk 
+	DBC_LAST_TARGET	rkptynipdlr     lrkptype lrkpnip lrkpkdtgk
+        DBC_MAP         mupdrkp2
+
+
+SPCALCS(sptrans)
+dmapmap
+IF cdjoinrkp0 daddrkp
+dupdrkp
+dbscanrkp
+dmapmap2
+dupdrkp2
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

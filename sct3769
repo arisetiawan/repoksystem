@@ -1,0 +1,320 @@
+SCREEN 3769 APP_TYPE Proses Komisi Piutang
+SCR_CHDIR {r_string2}
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cnoip
+
+
+
+
+CALCS()
+cnoip		g_usrkode == "1027492"
+
+LOCAL
+PGM_FIELDS
+lenter       	STRING         5 
+lIN		STRING	       3 
+lpil		INT2	       2   
+lcabtrg1        DFLOAT         8
+lkomsls         DFLOAT         8
+lkodkode        STRING        11
+lPB             STRING        3
+lD              STRING        3
+lK              STRING        3
+lksg            STRING        11
+lket            STRING        30
+ldf1            DFLOAT        8
+ldf2            DFLOAT        8
+lnol            INT2          2
+lnotrn          INT2          2
+lpmbnofak       STRING        15
+lpmbnobbm	STRING		11
+lpmbnobbm6	STRING		11
+lpmbnobbmlab	STRING		11
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3769             _________________________________                 @DATE
+ =====================Proses Komisi=========================================
+   Pil          : ___ 1. Komisi Unit
+   Tekan Enter  : __________ 
+ ===========================================================================
+   Faktur          Kode      Nip         Rupiah       Cabang       
+ ===========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     RI CENTER        1
+   lpil                  NUMERIC                     INPUTRI          11
+   lenter                NOCHANGE                    INPUTRI          11
+
+
+DEFAULT(master)
+lpil		INIT	1
+lIN		INIT	KOL
+lK              INIT    K
+lD              INIT    D
+lPB             INIT    PB
+lnotrn          INIT    1
+lnol            INIT    0
+ldf1            INIT    1
+ldf2            INIT    1
+lksg            INIT    BLANKS
+
+/*** SUBFILE INFORMATION ***/
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=10}
+ _______________ ______________ __________ __________ __________
+
+FIELD(trans)
+kodsts        	ALLCAPS SCROLL		    INPUTRI	1     
+kodnofak      	PROTECT SCROLL		    INPUTRI	1     
+kodtotal      	PROTECT SCROLL		    INPUTRI	1     
+kodkode       	PROTECT SCROLL		    INPUTRI	1     
+kymcabskr     	PROTECT SCROLL		    INPUTRI	1     
+
+EDITS(trans)
+Nip Tidak ada kodkode VALIDATE kymnipidx mkym
+Cabang Tidak ada kymcabskr VALIDATE cabnoidx mcab
+
+MAP(mkym)
+kymnip   kodkode    REPLACE
+
+MAP(mcab)
+cabno   kymcabskr    REPLACE
+
+
+SUBFILE(trans)
+SFL_LINES(10)
+
+SFL_TARGET
+kodstsscrkod  lIN 
+
+CALCS()
+cKOMPUTER	"KOMPUTER"
+cKOM     	"KOM"     
+csystime	SYSTIME
+cGJ		"HK"
+cGJTUNAI        "HK"
+cF		"F"
+cINPG		"INPG"
+cOPEN		"OPEN"
+cUMUMNSS        "UMUMNSS"
+cUMUMNSA        "UMUMNSA"
+cUMUMNSC        "UMUMNSC"
+cUMUMSPR        "UMUMSPR"
+cUMUMNSS1       lcabtrg1 == 1
+cUMUMNSA1       lcabtrg1 == 2
+cUMUMNSC1       lcabtrg1 == 3
+cUMUMSPR1       lcabtrg1 == 4
+ckomedp		"TRANS310511"
+clayar2682      "LAYAR614"
+crek1		"392.01." + STRIP(kymcabskr)
+crek2		"670.05." + STRIP(kymcabskr)
+calamat1	"KOMISI KOLEKTOR" 
+calamat2	"REWARD KOLEKTOR" 
+ckond1          kymdep == "MKTG"
+ckond2          kymdep != "MKTG"
+cpmbnofak	"HK" + STRIP(kodkode)
+c614            "614"
+cket	        "NIP:" + STRIP(kymnip) + "/" + STRIP(kymnama) 
+cCL             "KL"
+
+MAP(maddpmb1)
+   pmbnofak             pmbnofak        REPLACE
+   c614                 pmbscr          DO_CALC
+   calamat1             pmbalamat       DO_CALC_IF ckond1
+   calamat1             pmbnorangka     DO_CALC_IF ckond1
+   calamat2             pmbalamat       DO_CALC_IF ckond2
+   calamat2             pmbnorangka     DO_CALC_IF ckond2
+   clayar2682           pmbbrg          DO_CALC
+   kymcabskr            pmbcab          REPLACE
+   kymnip               pmbnobbm2       REPLACE
+   g_tgltrn             pmbtglfak       REPLACE
+   cKOMPUTER            pmbnobbm7       DO_CALC
+   kymgrup              pmblok          REPLACE
+   kymnama              pmbket          REPLACE
+   kymbank              pmbnomesin      REPLACE
+   kymsts               pmbstsimp       REPLACE
+   kymstr1              pmbmtuangas1    REPLACE
+   csystime             pmbcrtjam       DO_CALC
+   cGJTUNAI             pmbsup          DO_CALC
+   cGJ                  pmbawal         DO_CALC
+   cF                   pmbtype         DO_CALC
+   cINPG                pmbsts          DO_CALC
+   cOPEN                pmbstsprc       DO_CALC
+   cKOM                 pmbstsexp       DO_CALC
+   lkomsls              pmbtotfak       REPLACE
+   lkomsls              pmbsisa         REPLACE
+   lkomsls              pmbsisprc       REPLACE
+   lkomsls              pmbnamamb       REPLACE
+   crek1                pmbnobbm        DO_CALC
+   crek2                pmbnobbm6       DO_CALC
+   kymlokgj             pmbnobbm5       REPLACE
+   cUMUMNSS             pmbdvs          DO_CALC_IF cUMUMNSS1
+   cUMUMNSA             pmbdvs          DO_CALC_IF cUMUMNSA1
+   cUMUMNSC             pmbdvs          DO_CALC_IF cUMUMNSC1
+   cUMUMSPR             pmbdvs          DO_CALC_IF cUMUMSPR1
+   g_usrkode            pmbkota         REPLACE
+   ckomedp              pmbinv          DO_CALC
+
+DBCALCS(daddpmb1)
+        DBC_COMMAND     ADD
+        DBC_FILE        pmb
+        DBC_MAP         maddpmb1
+        DBC_LAST_TARGET pmbnofakidx  pmbnofak
+        DBC_LAST_LEN    14
+
+
+MAP(maddpmb0000)
+   lpmbnofak            pmbnofak        REPLACE
+   c614                 pmbscr          DO_CALC
+   calamat1             pmbalamat       DO_CALC_IF ckond1
+   calamat1             pmbnorangka     DO_CALC_IF ckond1
+   calamat2             pmbalamat       DO_CALC_IF ckond2
+   calamat2             pmbnorangka     DO_CALC_IF ckond2
+   clayar2682           pmbbrg          DO_CALC
+   kymcabskr            pmbcab          REPLACE
+   kymnip               pmbnobbm2       REPLACE
+   g_tgltrn             pmbtglfak       REPLACE
+   cKOMPUTER            pmbnobbm7       DO_CALC
+   kymgrup              pmblok          REPLACE
+   kymnama              pmbket          REPLACE
+   kymbank              pmbnomesin      REPLACE
+   kymsts               pmbstsimp       REPLACE
+   kymstr1              pmbmtuangas1    REPLACE
+   csystime             pmbcrtjam       DO_CALC
+   cGJTUNAI             pmbsup          DO_CALC
+   cGJ                  pmbawal         DO_CALC
+   cF                   pmbtype         DO_CALC
+   cINPG                pmbsts          DO_CALC
+   cOPEN                pmbstsprc       DO_CALC
+   cKOM                 pmbstsexp       DO_CALC
+   lkomsls              pmbtotfak       REPLACE
+   lkomsls              pmbsisa         REPLACE
+   lkomsls              pmbsisprc       REPLACE
+   lkomsls              pmbnamamb       REPLACE
+   crek1                pmbnobbm        DO_CALC
+   crek2                pmbnobbm6       DO_CALC
+   kymlokgj             pmbnobbm5       REPLACE
+   cUMUMNSS             pmbdvs          DO_CALC_IF cUMUMNSS1
+   cUMUMNSA             pmbdvs          DO_CALC_IF cUMUMNSA1
+   cUMUMNSC             pmbdvs          DO_CALC_IF cUMUMNSC1
+   cUMUMSPR             pmbdvs          DO_CALC_IF cUMUMSPR1
+   g_usrkode            pmbkota         REPLACE
+   ckomedp              pmbinv          DO_CALC
+
+DBCALCS(daddpmb0000)
+	DBC_COMMAND	ADD_DIR
+	DBC_FILE	pmb
+	DBC_DIR		0000
+	DBC_MAP		maddpmb0000
+	
+
+MAP(mupdkod)
+kodnobuk	kodnofak	REPLACE
+lpmbnofak    kodnobuk   REPLACE
+cCL         kodsts     DO_CALC
+
+
+DBCALCS(dupdkod)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	kodprmidx kodprm
+	DBC_MAP	        mupdkod
+
+CALCS()
+cganti    lkodkode  != kodkode
+
+MAP(mmap1)
+cpmbnofak   pmbnofak   DO_CALC
+cket        lket       DO_CALC
+
+DBCALCS(dmap1)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP	        mmap1
+
+MAP(mmap2)
+kodkode     lkodkode   REPLACE
+
+DBCALCS(dmap2)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP	        mmap2
+
+CALCS()
+crekhut		"420.01."+STRIP(kymcabskr)
+
+MAP(mmapnofak)
+pmbnofak    	lpmbnofak   	REPLACE
+crek1		lpmbnobbm	DO_CALC
+crek2		lpmbnobbm6	DO_CALC
+crekhut		lpmbnobbmlab	DO_CALC
+
+DBCALCS(dmapnofak)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP	        mmapnofak
+
+MAP(mscankod)
+kodtotal    lkomsls   REPLACE
+
+DBCALCS(dbscankod)
+   	DBC_COMMAND    SCANSCAN
+   	DBC_TARGET     kodstsscrkod lIN kodscr kodkode
+	DBC_SUM_MAP    mscankod
+
+
+CALCS()
+ckomsls			lkomsls + bbmmtdebbl
+csldakhir		bbmsdawlbl + bbmmtkrebl - bbmmtdebbl
+csaldolalu		lkomsls + bbmsdblnlalu 
+
+MAP(mupdbbmhut)
+csaldolalu		bbmsdblnlalu		DO_CALC
+csaldolalu		bbmsdawlbl		DO_CALC /***** ganti harus sendiri2 ****/
+csldakhir		bbmsdakhbl		DO_CALC
+
+DBCALCS(dupdbbmhut)
+	DBC_COMMAND	UPDATE_DIR
+	DBC_TARGET	bbmnoidx	lpmbnobbm		/**** rek 392 ****/
+	DBC_DIR		0000
+	DBC_MAP		mupdbbmhut
+
+MAP(mupdbbmbi)
+csaldolalu		bbmsdblnlalu		DO_CALC
+
+DBCALCS(dupdbbmbi)
+	DBC_COMMAND	UPDATE_DIR
+	DBC_TARGET	bbmnoidx	lpmbnobbm6		/*** rek 670 ***/
+	DBC_DIR		0000
+	DBC_MAP		mupdbbmbi
+
+MAP(mupdbbmlab)
+ckomsls			bbmmtdebbl		DO_CALC
+csldakhir		bbmsdakhbl		DO_CALC
+
+DBCALCS(dupdbbmlab)				
+	DBC_COMMAND	UPDATE_DIR
+	DBC_TARGET	bbmnoidx	lpmbnobbmlab		/*** rek 420 ***/
+	DBC_DIR		0000
+	DBC_MAP		mupdbbmlab
+
+
+SPCALCS(sptrans)
+dmap1
+IF cganti	dbscankod
+IF cganti	daddpmb1
+IF cganti    	dmapnofak
+
+/****** posting yang mengarah ke direktori berjalan ******/
+IF cganti	daddpmb0000
+IF cganti	dupdbbmhut
+IF cganti	dupdbbmbi
+IF cganti	dupdbbmlab
+/********************************************************/
+
+dupdkod
+DO_LIB_IF cganti ap_adjrn (lnotrn,pmbnobbm,pmbnofak,lket,lK,lPB,pmbsisa,pmbtglfak,pmbscr,pmbcab,lksg,lksg,lksg,lksg,ldf1);
+DO_LIB_IF cganti ap_adjrn (lnol,pmbnobbm6,pmbnofak,lket,lD,lPB,pmbsisa,pmbtglfak,pmbscr,pmbcab,lksg,lksg,lksg,lksg,ldf2);
+dmap2
+
+POSTING(trans)
+	PST_COMMAND sptrans
+
+END_SCREEN

@@ -1,0 +1,116 @@
+SCREEN 3758  APP_TYPE Komisi Piutang 2
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+/*
+ltgl1           	DATE            	4
+lclctype2		STRING			15
+lthbl			STRING			5
+ltgl2           	DATE           	 	4*/
+lpil			INT2			2
+lPIU			STRING			11
+
+lrkpnip_piu		STRING			11
+lrkpnip_spv		STRING			11
+lrkptype_piu		STRING			15
+lrkptype_spv		STRING			15
+lrkptype		STRING			15
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3758              _________________________________                 @DATE
+   ===HITUNG JUMLAH SDM KOLEKTOR UNTUK PIUTANG DAN SPV======================
+          Pilihan    : __                      
+
+
+
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+
+
+DEFAULTS(master)
+lrkptype_piu		INIT		"PIUT1106"
+lrkptype_spv		INIT		"SPV1106"
+lrkptype		INIT		"KOLEK1106"
+lPIU			INIT		"PIU"
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________   _________ __________  ___________
+
+FIELDS(trans)
+prrrute       	NOCHANGE        INPUTRI 1
+prrstr7		PROTECT SCROLL	INPUTRI	2
+prrstr25	PROTECT SCROLL	INPUTRI	3
+prrstr26	PROTECT SCROLL	INPUTRI	4
+
+CALCS()
+ckolektorisi		prrstr7 != "" 
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT	ckolektorisi
+        SFL_TARGET
+		prrruteidx	lPIU
+
+
+CALCS()
+ctambah			rkpdf8 + 1
+
+MAP(mrangePIU)
+ctambah			rkpdf8			DO_CALC
+
+
+DBCALCS(dupdrange_piu)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr	lrkptype_piu	lrkpnip_piu
+	DBC_LAST_TARGET	rkptynipdlr	lrkptype_piu	lrkpnip_piu
+	DBC_MAP		mrangePIU
+
+
+MAP(mrangeSPV)
+ctambah			rkpdf8			DO_CALC
+
+DBCALCS(dupdrange_spv)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr	lrkptype_spv	lrkpnip_spv
+	DBC_LAST_TARGET	rkptynipdlr	lrkptype_spv	lrkpnip_spv
+	DBC_MAP		mrangeSPV
+
+MAP(mmapmap)
+prrstr25		lrkpnip_piu		REPLACE
+prrstr26		lrkpnip_spv		REPLACE
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+SPCALCS(sptrans)
+dmapmap
+dupdrange_piu
+dupdrange_spv
+
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN

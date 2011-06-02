@@ -1,0 +1,413 @@
+SCREEN 3712 QUERY_TYPE Master Komisi Piutang
+SCR_FILE rmm
+SCR_READ_DVS_UMUM 
+SCR_TGLTRN_PASS_OK
+
+LOCAL
+PGM_FIELDS
+lpil  	    		INT2 		2
+lclctype		STRING		15
+lnour			INT2		2
+lrmdkode		STRING		11
+l614			STRING		5
+
+IMAGE(master) {BASE_ROW=2} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3712                _____________________________________________
+/==================================================================================================\ 
+| /----------------------------------------------------------------------------------------------\ |
+! | Type        : __________                                                                     | |
+! | No Bukti    : __________   GRUP :  ______ TYPE 2 :  _____                                    | |
+! | Keterangan  : ____________________________                                                   | |
+| \----------------------------------------------------------------------------------------------/ |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+|                                                                                                  |
+\--------------------------------------------------------------------------------------------------/
+
+FIELD(master)
+   stspersh         PROTECT QPROTECT    INPUTRI CENTER    1
+   rmmtype          NOCHANGE      	INPUTRI           2
+   rmmkode          ALLCAPS SCROLL      INPUTRI           3
+   rmmcab           NOCHANGE	     	INPUTRI           4
+   rmmtype2         NOCHANGE            INPUTRI           4
+   rmmket           ALLCAPS             INPUTRI           4
+
+CALCS()
+cKOL		rmmtype == "KOL"
+cRAPORTsurvey			rmmtype == "RAP" && rmmcab == "RS" 
+
+DEFAULTS(master)
+IF cKOL rmmtype2    		DFALT_SCAN   	Z1 "BJTP	"
+					Z2 "1 - 30	"
+					Z4 "31- 60	"
+					Z6 "61- 90	"
+					Z7 
+					RE
+					BZ1
+					BZ2
+					BZ4
+					BZ6
+					BZ7
+					BRE
+					PZ1
+					PZ2
+					PZ4
+					PZ6
+					PZ7
+					PRE
+					SZ1
+					SZ2
+					SZ4
+					SZ6
+					SZ7
+					SRE
+					TZ1
+					TZ2
+					DEN
+					
+					
+rmmcab		DFALT_SCAN		RS	"RAPORT SURVEY"
+					RM	"RAPORT MARKETING"
+					RP	"RAPORT PIUTANG"
+					RA	"RAPORT ADH"
+
+IF cRAPORTsurvey	rmmtype2	DFALT_SCAN	KRDS	"JUAL ATAU ACC KREDIT"
+					J12S	"JUAL DP > 12 PERSEN"
+					FIDS	"F I D - F I D"
+					3MBS	"3 M O B      "
+					FPDS	"F P D        "
+
+
+
+
+						
+
+rmmtype			DFALT_LIST	KOL RAP
+rmmtype			INIT_QUERY	KOL
+l614			INIT		3761
+rmmkode			DUP_INIT
+rmmtype2		DUP_INIT
+rmmket			DUP_INIT
+
+EDIT(master)
+Kode tidak boleh kosong rmmkode MANDATORY
+
+
+
+
+IMAGE(transt) {CLR_LINES=12} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=9}
+/-------------t---------------------------t-------------t---------t--------------------------------\
+!             |           ALIR            |             |         |                                |
+! Jenis Mtr   |-------------t-------------|             |  kode   |                                |
+!             |   Dealer    |  Pribadi    |  BatasTamb  |   bayar | Rupiah                         |
+!=============|=============|=============|=============|=========|================================|
+             
+
+
+
+
+
+
+
+
+\=============.=============.=============.=============.=========.================================/
+  
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=14} {COVER_MASTER}
+|_____________|__________.__|__________.__|__________.__|___ _____|_________.__                    |
+
+FIELD(trans)
+   rmdkode2     ALLCAPS SCROLL	 	INPUTRI         1
+   rmdbts1      ALLCAPS SCROLL  	INPUTRI         2
+   rmdbts2      ALLCAPS SCROLL  	INPUTRI         3
+   rmdbts3      ALLCAPS SCROLL  	INPUTRI         4
+   lnour	NUMERIC			INPUTRI		5
+   rmdkode3     PROTECT SCROLL	  	INPUTRI         7
+   rmdtotal1	NUMERIC			INPUTRI		8
+
+DEFAULTS(trans)
+rmdbts1			DUP_INIT	
+rmdbts2			DUP_INIT
+rmdbts3			DUP_INIT
+rmdkode2		DUP_INIT
+rmdtotal1		DUP_INIT
+
+EDITS(trans)
+Kode bayar tidak ada	lnour VALIDATE clctypurtidx mclc sclc {Plclctype} {Srmdkode3}
+
+MAP(mclc)
+clcnourt	lnour			REPLACE
+clckode		rmdkode3		REPLACE
+
+CALCS()
+cRAPRS			rmmtype == "RAP" && rmmcab == "RS"
+cPU1104			"PU1104"
+cMSTSVY			"TYPESVY"
+
+MAP(misiawl)
+cPU1104			lclctype	DO_CALC_IF cKOL
+cMSTSVY			lclctype	DO_CALC_IF cRAPRS
+
+
+HOOKS(trans)
+AFTER_INPUT	cur_field=rmdkode2	DO_MAP SHOW misiawl
+
+
+/****************************************************************************/
+IMAGE(clchead) {LSTFLD_ADVANCE} {FRSFLD_BACKUP}  {POP_UP} {BASE_ROW=7} {BASE_COLUMN=20}
+/-------------Daftar xxxxxxxx---------------------\			
+|  Kode           Keterangan                      |
+|-------------------------------------------------|
+
+
+
+
+
+
+
+
+
+|-------------------------------------------------|
+|      Tekan ESC untuk keluar                     |
+\-------------------------------------------------/
+
+IMAGE(clcroll) {POP_UP} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=10} {BASE_COLUMN=20}
+| ______________  _______________________________ |
+
+FIELD(clcroll)
+/* Nama Field    Input Attribute  Output Attribute  Input Order   */
+   clckode               NOCHANGE SCROLL          NONE              1  
+   clcisi               PROTECT SCROLL           NONE              2  
+
+
+SCAN(sclc) {IMAGE_OUT=clchead} {IMAGE_ROL=clcroll} {IMAGE_INP=clcroll} {SELECT_BAR} {ROLL_LINES=8} 
+
+SUBFILE(trans)
+SFL_TITLE(transt)
+SFL_LINES(9)   
+
+SFL_TARGET
+rmdtykodidx    rmmtype rmmkode
+
+SFL_MAP
+rmmtype        rmdtype
+rmmkode        rmdkode
+
+
+
+IMAGE(trans2t) {CLR_LINES=14} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=14}
+!============t=========t===========t=================!
+!Cabang      |         |           |                 !
+!============|=========|===========|=================!
+
+
+
+
+
+
+
+
+
+`============.==========.==========.==============.==!
+
+IMAGE(trans2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=17} {COVER_MASTER}
+! __________ |_ __________|__      |__________       !__________
+
+FIELD(trans2)
+   pkjcab       ALLCAPS  SCROLL  	INPUTRI          2
+   pkjhrg	NUMERIC			INPUTRI		2
+   pkjkat       NOCHANGE  SCROLL  	INPUTRI          2
+   pkjstr1      PROTECT  SCROLL  	INPUTRI          2
+   pkjkode      PROTECT  SCROLL  	INPUTRI          2
+   pkjnobbm     NOCHANGE  SCROLL  	INPUTRI          2
+
+EDITS(trans2)
+Kode Cabang harus diisi pkjcab MANDATORY
+hanya boleh 1 2 3 4 dan 5 pkjhrg TABLE 1 2 3 4 5
+
+CALCS()
+cpkjkode      STRIP(pkjcab) + STRIP(pkjkat) + STRIP(rmmtype2)
+
+MAP(mpkj)
+rmmtype        pkjkat 		REPLACE
+cpkjkode      	pkjkode   	DO_CALC
+
+HOOKS(trans2)
+AFTER_INPUT   cur_keybd=EN        DO_MAP SHOW mpkj
+
+CALCS()
+csama       pkjnobbm == rmmkode
+
+SUBFILE(trans2)
+SFL_LINES(7)   
+SFL_SELECT csama
+SFL_TITLE(trans2t)
+
+SFL_TARGET
+pkjkatkodidx    rmmtype
+
+SFL_MAP
+rmmtype2       pkjstr1
+rmmkode        pkjnobbm
+
+/*RESTRICT(master)
+  RST_ADD_COND	cdawil
+  RST_UPD_COND	cada
+  RST_DEL_COND	cada*/
+
+IMAGE(report) {LSTFLD_ADVANCE} {BASE_ROW=2}
+SCT3712           Mencetak DO                                   @DATE
++
+		1.Komisi Kolektor _________
+                2.Komisi Kolektor
+	        5.Uang Bensin / Tagih Tangan
+                6.Penarikan 345 dan Rem
+                7.Reward Denda
+                8.Komisi Piutang
+                9.Bonus  Piutang 
+	       10.Uang Bensin
+	       11.Komisi SPV piutang
+	       12.Bonus SPV Piutang
+	       13.Reward Kolektor
+               14.Datun
+
+		Pilihan	    : __
+		
+		Device      : _   
+
+								               +
+FIELD(report)
+/* Symbol Name   Input Atribute  Output Atribute  Input Order  Special */
+    lrmdkode    	    NOCHANGE	       INPUTRI		2	
+    lpil     	    NUMERIC	       INPUTRI		2	
+    r_dev           NUMERIC            INPUTRI          4
+
+DEFAULTS(report)
+r_dev	DFALT_LIST	6 1 2 3 0
+lrmdkode	INIT	{rmmkode}
+
+CALCS()
+cpil1	lpil == 1
+cpil2	lpil == 2
+cpil3	lpil == 3
+cpil5	lpil == 5	
+cpil6	lpil == 6
+cpil7	lpil == 7
+cpil8	lpil == 8
+cpil9	lpil == 9
+cpil10	lpil == 10
+cpil11	lpil == 11
+cpil12	lpil == 12
+cpil13	lpil == 13
+cpil14	lpil == 14
+
+
+MAP(mstring)
+lpil            r_string1	REPLACE
+stskode 	r_string2	REPLACE
+
+DEFAULTS(qrtsrmd)
+rmdkode		INIT_QUERY	{lrmdkode} : {lrmdkode}
+
+DEFAULTS(qrtskod)
+kodscr		INIT_QUERY	{l614} : {l614}
+
+RTREE(report)
+RT_COND cpil1
+RT_JOIN_OUTPUT
+USES_SCRIPT(scr613p02.rts)
+RT_DEFAULT qrtsrmd
+RT_MAP   mstring
+
+RTREE(report1)
+RT_COND cpil1
+USES_SCRIPT(scr613p01.rts)
+RT_DEFAULT qrtsrmd
+RT_MAP   mstring
+
+RTREE(report2)
+RT_COND cpil2
+USES_SCRIPT(scr613p03.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report3)
+RT_COND cpil3
+USES_SCRIPT(scr613p03a.rts)
+RT_MAP   mstring
+
+RTREE(report5)
+RT_COND cpil5
+USES_SCRIPT(scr613p05.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report6)
+RT_COND cpil6
+USES_SCRIPT(scr613p06.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report7)
+RT_COND cpil7
+USES_SCRIPT(scr613p07.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report8)
+RT_COND cpil8
+USES_SCRIPT(scr613p08.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report9)
+RT_COND cpil9
+USES_SCRIPT(scr613p09.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report10)
+RT_COND cpil10
+USES_SCRIPT(scr613p10.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report11)
+RT_COND cpil11
+USES_SCRIPT(scr613p11.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report12)
+RT_COND cpil12
+USES_SCRIPT(scr613p12.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report13)
+RT_COND cpil13
+USES_SCRIPT(scr613p13.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+RTREE(report14)
+RT_COND cpil14
+USES_SCRIPT(scr613p14.rts)
+RT_DEFAULT qrtskod
+RT_MAP   mstring
+
+END_SCREEN
+

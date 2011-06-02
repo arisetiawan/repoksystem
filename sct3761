@@ -1,0 +1,528 @@
+SCREEN 3761 APP_TYPE Pros add kod Kolektor
+SCR_TGLTRN_PASS_OK
+SCR_NXT_MAP mnext
+
+LOCAL
+PGM_FIELDS
+lenter       	STRING         5 
+lpil		INT2	       2   
+ltgl1           DATE           4
+ltgl2           DATE           4
+ltgl3           DATE           4
+lrmmtype        STRING        11
+lsales 	        STRING        11
+lrmdkode2	        STRING        11
+lafkjns2	STRING        11
+ltypekp		STRING		3
+lyt             STRING         3
+lpkjkode        STRING         31
+lY              STRING         3
+   lrmdtype		STRING		11
+   lhasil		DFLOAT		8
+   lbatasdp		DFLOAT		8
+   lakum_unit		DFLOAT		8
+   lpkjnobbm            STRING		15
+   lnamaindex           STRING          30
+   lfldytproses         STRING          30
+lrkptype		STRING		15
+ldum			INT2		2
+lrkpkdtgk		STRING		3
+lrkpnip			STRING		11
+lkymcabskr		STRING		11
+lrkpkodeclc		STRING		11
+lbnsz1mg1		DFLOAT			8
+lbnsz1mg2		DFLOAT			8
+lbnsz1mg3		DFLOAT			8
+
+lbnsz2mg1		DFLOAT			8
+lbnsz2mg2		DFLOAT			8
+lbnsz2mg3		DFLOAT			8
+
+lbnsz4mg1		DFLOAT			8
+lbnsz4mg2		DFLOAT			8
+lbnsz4mg3		DFLOAT			8
+
+lbnsz6mg1		DFLOAT			8
+lbnsz6mg2		DFLOAT			8
+lbnsz6mg3		DFLOAT			8
+lcabnoexp		DFLOAT			8
+
+MAP(mjoinkym)
+kymcabskr		lkymcabskr	REPLACE
+
+DBCALCS(djoinkym)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	kymnipidx	kodkode
+	DBC_MAP		mjoinkym
+
+MAP(mjoinpkj)
+pkjnobbm	lpkjnobbm	REPLACE
+
+DBCALCS(djoinpkj)
+	DBC_COMMAND		JOIN
+	DBC_TARGET		pkjkodidx	lpkjkode
+        DBC_MAP			mjoinpkj
+
+MAP(mjoincab)
+cabnoexp		lcabnoexp		REPLACE
+
+DBCALCS(djoincab)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx	rkpdlr
+	DBC_MAP		mjoincab
+
+MAP(mnext)
+ltgl1         r_date1     REPLACE
+ltgl2         r_date2     REPLACE
+ltgl3         r_date2     REPLACE
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3761             _________________________________                 @DATE
+ =====================Proses Komisi=========================================
+   Pil          : ___ 1. Komisi Kolektor  2.Remedial   3.Piutang   4.BNS Piut
+                : ___ 5. SPV Piutang      6.Bns Spv Piut           7.RewMgan
+		:     8. Uang Bensin
+   Tgl 1        : ________   Tgl2 : ________   Tgl3 : ________          __ 
+ ===========================================================================
+   Faktur          Kode      Nip         Rupiah       Cabang       
+ ===========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     RI CENTER        1
+   lpil                  NUMERIC                     INPUTRI          11
+   lrmmtype              ALLCAPS SCROLL              INPUTRI          11
+   ltgl1                 NONE {DD-MM-YY}             INPUTRI          11
+   ltgl2                 NONE {DD-MM-YY}             INPUTRI          11
+   ltgl3                 NONE {DD-MM-YY}             INPUTRI          11
+   lenter                NOCHANGE                    INPUTRI          11
+
+
+DEFAULT(master)
+lpil		INIT	1
+lyt 		INIT	T
+lsales		INIT    KOL
+lrmmtype        INIT    KOL
+lY  		INIT	Y
+lrmdtype	INIT    KOL 
+lrmdkode2		INIT	ALL
+lafkjns2	INIT	BLANKS
+ltypekp		INIT	BLANKS
+lrkpnip		INIT	BLANKS
+/*ltgl1           INIT    {stsprjpiupr}
+ltgl2           INIT    20110331
+ltgl3           INIT    20110331
+*/
+lnamaindex      INIT    BLANKS
+lfldytproses    INIT    BLANKS
+lrkpkodeclc 	INIT	PIU
+
+
+CALCS()
+cKOLEK			"KOLEK1106"
+cPIUT			"PIUT1106"
+cSPV			"SPV1106"
+cpilihan1		lpil == 1 || lpil == 2 || lpil == 7 || lpil == 8
+cpilihan3		lpil == 3 || lpil == 4
+cpilihan5		lpil == 5 || lpil == 6
+
+MAP(misiawl)
+cKOLEK			lrkptype			DO_CALC_IF cpilihan1
+cPIUT			lrkptype			DO_CALC_IF cpilihan3
+cSPV			lrkptype			DO_CALC_IF cpilihan5
+
+
+HOOKS(master)
+AFTER_INPUT		cur_field=lpil 			DO_MAP SHOW misiawl
+
+
+/*** SUBFILE INFORMATION ***/
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=10}
+ _______________ __________ __________ __________ __________ ________________ 
+
+FIELD(trans)
+rkptype      	ALLCAPS SCROLL		    INPUTRI	1     
+rkpnip       	PROTECT SCROLL		    INPUTRI	1     
+rkpkdtgk       	PROTECT SCROLL		    INPUTRI	1     
+rkpkodeclc     	NOCHANGE SCROLL		    INPUTRI	1     
+rkptype2      	PROTECT SCROLL		    INPUTRI	1     
+rkpdf1     	NOCHANGE SCROLL		    INPUTRI	1     
+
+
+EDITS(trans)
+Karyawan tidak ada rkpnip VALIDATE kymnipidx mkym
+
+MAP(mkym)
+kymsdep    kymsdep     REPLACE
+
+
+
+CALCS()
+cond1		lpil == 1 || lpil == 2 || lpil == 3 || lpil == 4 || lpil == 5 || lpil == 6 || lpil == 7 || lpil == 8
+
+cond1a		djoincab == 1 && lcabnoexp != 13 && ((lpil == 1 && rkptype == "KOLEK" && (rkpkdtgk == "Z1" || rkpkdtgk == "Z2" || rkpkdtgk == "Z4" || rkpkdtgk == "Z6" || rkpkdtgk == "X7") && (rkpkodeclc == "STN1" || rkpkodeclc == "STN0" || rkpkodeclc == "BNS" || rkpkodeclc == "BYR1" || rkpkodeclc == "BYR2" || rkpkodeclc == "BYR3" || rkpkodeclc == "BYR4" || rkpkodeclc == "POS" || rkpkodeclc == "DEN")) || 
+                (lpil == 2 && rkptype == "KOLEK" && (rkpkdtgk == "XA" && (rkpkodeclc == "BYR4" || rkpkodeclc == "BNS"))) || 
+                ((lpil == 3 && rkpdf8 >= 7 && rkpkodeclc == "BNS") || (lpil == 4 && rkpkodeclc == "BNS") && rkpnip != "") || 
+                (((lpil == 5 && rkpdf8 >= 7) || lpil == 6) && rkpkodeclc == "BNS" && rkpnip != "") ||
+		(lpil == 7 && rkpkodeclc == "REW") ||
+		(lpil == 8 && rkpkodeclc == "TT")) 
+
+
+
+SUBFILE(trans)
+SFL_COND  	cond1
+SFL_SELECT	cond1a
+SFL_LINES(10)
+
+SFL_TARGET 
+rkptynipdlr	lrkptype
+
+CALCS()
+cKOL		"KOL"
+chasil		lhasil * rkpdf3
+cnotbns		rkpkodeclc != "BNS" && rkpkodeclc != "DEN"
+cbns			rkpkodeclc == "BNS"
+crekbiaya	"670.05."+STRIP(kymcabskr)
+c3761		"3761"
+cDENDA			rkpkodeclc == "DEN"
+chasilDENDA	lhasil * rkpdf4
+
+cpilihan41	lpil == 4 && rkpkdtgk == "Z1" && rkpdf1 >= 10
+cpilihan42	lpil == 4 && rkpkdtgk == "Z2" && rkpdf1 >= 40
+cpilihan43	lpil == 4 && rkpkdtgk == "Z4" && rkpdf1 >= 35
+cpilihan44	lpil == 4 && rkpkdtgk == "Z6" && rkpdf1 >= 30
+
+cpilihans41	lpil == 6 && rkpkdtgk == "Z1" && rkpdf1 >= 10
+cpilihans42	lpil == 6 && rkpkdtgk == "Z2" && rkpdf1 >= 40
+cpilihans43	lpil == 6 && rkpkdtgk == "Z4" && rkpdf1 >= 35
+cpilihans44	lpil == 6 && rkpkdtgk == "Z6" && rkpdf1 >= 30
+
+cBNSPIUT1	80000
+cBNSPIUT2	250000
+cBNSPIUT3	200000
+cBNSPIUT4	100000
+
+cBNSSPV1	100000
+cBNSSPV2	300000
+cBNSSPV3	250000
+cBNSSPV4	200000
+
+
+
+cpil3		lpil == 3
+cpil4		lpil == 4 || lpil == 6
+cpil5		lpil == 5
+c0		0
+crkpkodeclcspv	"SPI"
+
+
+MAP(maddkod)
+rkpnip      	kodkode   	REPLACE
+rkptype     	kodnobuk  	REPLACE
+rkptype		kodnofak	REPLACE
+rkpkdtgk    	kodkdtgk  	REPLACE
+rkpkodeclc	kodtype		REPLACE
+lrkpkodeclc	kodtype		REPLACE_IF cpil3
+crkpkodeclcspv	kodtype		DO_CALC_IF cpil5
+g_tgltrn    	kodtgl    	REPLACE
+cKOL        	kodsts    	DO_CALC
+chasil      	kodtotal  	DO_CALC_IF cnotbns
+lhasil		kodtotal	REPLACE_IF cbns
+c0		kodtotal	DO_CALC_IF cpil4
+chasilDENDA	kodtotal	DO_CALC_IF cDENDA
+
+cBNSPIUT1	kodtotal	DO_CALC_IF cpilihan41
+cBNSPIUT2	kodtotal	DO_CALC_IF cpilihan42
+cBNSPIUT3	kodtotal	DO_CALC_IF cpilihan43
+cBNSPIUT4	kodtotal	DO_CALC_IF cpilihan44
+
+cBNSSPV1	kodtotal	DO_CALC_IF cpilihans41
+cBNSSPV2	kodtotal	DO_CALC_IF cpilihans42
+cBNSSPV3	kodtotal	DO_CALC_IF cpilihans43
+cBNSSPV4	kodtotal	DO_CALC_IF cpilihans44
+
+lhasil	  	kodjml    	REPLACE
+c0		kodjml		DO_CALC_IF cpil4
+crekbiaya	koddlr		DO_CALC
+c3761		kodscr		DO_CALC
+DEBUG		ldum		ldum		REPLACE
+
+
+DBCALCS(daddkod)
+	DBC_COMMAND	ADD
+	DBC_FILE	kod	
+	DBC_MAP	        maddkod
+
+
+CALCS()
+cREW		"REW"
+cposz1mg1_01	rkpkdtgk == "Z1" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf1 >= 44
+cposz1mg1_02	rkpkdtgk == "Z1" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf1 >= 44
+cposz1mg1_03	rkpkdtgk == "Z1" && rkpdf4 >= 300 && rkpdf1 >= 44
+
+cposz1mg2_01	rkpkdtgk == "Z1" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf2 >= 68
+cposz1mg2_02	rkpkdtgk == "Z1" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf2 >= 68
+cposz1mg2_03	rkpkdtgk == "Z1" && rkpdf4 >= 300 && rkpdf2 >= 68
+
+cposz1mg3_01	rkpkdtgk == "Z1" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf3 >= 80
+cposz1mg3_02	rkpkdtgk == "Z1" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf3 >= 80
+cposz1mg3_03	rkpkdtgk == "Z1" && rkpdf4 >= 300 && rkpdf2 >= 80
+
+cposz2mg1_01	rkpkdtgk == "Z2" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf1 >= 40
+cposz2mg1_02	rkpkdtgk == "Z2" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf1 >= 40
+cposz2mg1_03	rkpkdtgk == "Z2" && rkpdf4 >= 300 && rkpdf1 >= 40
+
+cposz2mg2_01	rkpkdtgk == "Z2" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf2 >= 60
+cposz2mg2_02	rkpkdtgk == "Z2" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf2 >= 60
+cposz2mg2_03	rkpkdtgk == "Z2" && rkpdf4 >= 300 && rkpdf2 >= 60
+
+cposz2mg3_01	rkpkdtgk == "Z2" && rkpdf4 >= 220 && rkpdf4 <= 249 && rkpdf3 >= 75
+cposz2mg3_02	rkpkdtgk == "Z2" && rkpdf4 >= 250 && rkpdf4 <= 299 && rkpdf3 >= 75
+cposz2mg3_03	rkpkdtgk == "Z2" && rkpdf4 >= 300 && rkpdf3 >= 75
+
+cposz4mg1_01	rkpkdtgk == "Z4" && rkpdf4 >= 22 && rkpdf1 >= 35
+cposz4mg2_02	rkpkdtgk == "Z4" && rkpdf4 >= 22 && rkpdf2 >= 55
+cposz4mg3_03	rkpkdtgk == "Z4" && rkpdf4 >= 22 && rkpdf3 >= 70
+
+cposz6mg1_01	rkpkdtgk == "Z6" && rkpdf4 >= 16 && rkpdf1 >= 30
+cposz6mg2_02	rkpkdtgk == "Z6" && rkpdf4 >= 16 && rkpdf2 >= 50
+cposz6mg3_03	rkpkdtgk == "Z6" && rkpdf4 >= 16 && rkpdf3 >= 65
+
+cbnsz1mg1_01	150000
+cbnsz1mg1_02	200000
+cbnsz1mg1_03	300000
+
+cbnsz1mg2_01	100000
+cbnsz1mg2_02	150000
+cbnsz1mg2_03	250000
+
+cbnsz1mg3_01	50000
+cbnsz1mg3_02	100000
+cbnsz1mg3_03	150000
+
+cbnsz2mg1_01	150000
+cbnsz2mg1_02	200000
+cbnsz2mg1_03	300000
+
+cbnsz2mg2_01	100000
+cbnsz2mg2_02	150000
+cbnsz2mg2_03	250000
+
+cbnsz2mg3_01	50000
+cbnsz2mg3_02	100000
+cbnsz2mg3_03	150000
+
+cbnsz4mg1_01	300000
+cbnsz4mg2_02	250000
+cbnsz4mg3_03	150000
+
+cbnsz6mg1_01	300000
+cbnsz6mg2_02	250000
+cbnsz6mg3_03	150000
+
+crewtotal	lbnsz1mg1 + lbnsz1mg2 + lbnsz1mg3 + lbnsz2mg1 + lbnsz2mg2 + lbnsz2mg3 + lbnsz4mg1 + lbnsz4mg2 + lbnsz4mg3 + lbnsz6mg1 + lbnsz6mg2 + lbnsz6mg3
+
+
+
+
+
+
+MAP(maddkod7)
+rkpnip      	kodkode   	REPLACE
+rkptype     	kodnobuk  	REPLACE
+rkptype     	kodnofak  	REPLACE
+rkpkdtgk    	kodkdtgk  	REPLACE
+rkpkodeclc	kodtype		REPLACE
+lrkpkodeclc	kodtype		REPLACE_IF cpil3
+crkpkodeclcspv	kodtype		DO_CALC_IF cpil5
+g_tgltrn    	kodtgl    	REPLACE
+cKOL        	kodsts    	DO_CALC
+
+
+cbnsz1mg1_01	lbnsz1mg1	DO_CALC_IF cposz1mg1_01
+cbnsz1mg1_02	lbnsz1mg1	DO_CALC_IF cposz1mg1_02
+cbnsz1mg1_03	lbnsz1mg1	DO_CALC_IF cposz1mg1_03
+
+cbnsz1mg2_01	lbnsz1mg2	DO_CALC_IF cposz1mg2_01
+cbnsz1mg2_02	lbnsz1mg2	DO_CALC_IF cposz1mg2_02
+cbnsz1mg2_03	lbnsz1mg2	DO_CALC_IF cposz1mg2_03
+
+cbnsz1mg3_01	lbnsz1mg3	DO_CALC_IF cposz1mg3_01
+cbnsz1mg3_02	lbnsz1mg3	DO_CALC_IF cposz1mg3_02
+cbnsz1mg3_03	lbnsz1mg3	DO_CALC_IF cposz1mg3_03
+
+cbnsz2mg1_01	lbnsz2mg1	DO_CALC_IF cposz2mg1_01
+cbnsz2mg1_02	lbnsz2mg1	DO_CALC_IF cposz2mg1_02
+cbnsz2mg1_03	lbnsz2mg1	DO_CALC_IF cposz2mg1_03
+
+cbnsz2mg2_01	lbnsz2mg2	DO_CALC_IF cposz2mg2_01
+cbnsz2mg2_02	lbnsz2mg2	DO_CALC_IF cposz2mg2_02
+cbnsz2mg2_03	lbnsz2mg2	DO_CALC_IF cposz2mg2_03
+
+cbnsz2mg3_01	lbnsz2mg3	DO_CALC_IF cposz2mg3_01
+cbnsz2mg3_02	lbnsz2mg3	DO_CALC_IF cposz2mg3_02
+cbnsz2mg3_03	lbnsz2mg3	DO_CALC_IF cposz2mg3_03
+
+cbnsz4mg1_01	lbnsz4mg1	DO_CALC_IF cposz4mg1_01
+cbnsz4mg2_02	lbnsz4mg2	DO_CALC_IF cposz4mg2_02
+cbnsz4mg3_03	lbnsz4mg3	DO_CALC_IF cposz4mg3_03
+
+cbnsz6mg1_01	lbnsz6mg1	DO_CALC_IF cposz6mg1_01
+cbnsz6mg2_02	lbnsz6mg2	DO_CALC_IF cposz6mg2_02
+cbnsz6mg3_03	lbnsz6mg3	DO_CALC_IF cposz6mg3_03
+
+
+crewtotal	kodtotal	DO_CALC
+crekbiaya	koddlr		DO_CALC
+c3761		kodscr		DO_CALC
+cbnsz4mg1_01	kodjml		DO_CALC
+cbnsz4mg2_02	koddp		DO_CALC
+cbnsz4mg3_03	kodpot		DO_CALC
+
+DBCALCS(daddkod7)
+	DBC_COMMAND	ADD
+	DBC_FILE	kod
+	DBC_MAP		maddkod7
+
+
+
+
+CALCS()
+c922		rkpdf2 >= 92 && rkpdf2 < 95 && rkpdf3 == 2
+c923		rkpdf2 >= 92 && rkpdf2 < 95 && rkpdf3 == 3
+c924		rkpdf2 >= 92 && rkpdf2 < 95 && rkpdf3 >= 4
+
+c952		rkpdf2 >= 95 && rkpdf3 == 2
+c953		rkpdf2 >= 95 && rkpdf3 == 3
+c954		rkpdf2 >= 95 && rkpdf3 >= 4
+
+cbsnz12		 6000
+cbsnz13		 9000
+cbsnz14		 12000
+
+cbsnz22		 20000
+cbsnz23		 30000
+cbsnz24		 40000
+
+
+
+MAP(maddkod8)
+crekbiaya	koddlr		DO_CALC
+c3761		kodscr		DO_CALC
+rkpnip      	kodkode   	REPLACE
+rkptype     	kodnobuk  	REPLACE
+rkptype     	kodnofak  	REPLACE
+rkpkdtgk    	kodkdtgk  	REPLACE
+rkpkodeclc	kodtype		REPLACE
+lrkpkodeclc	kodtype		REPLACE_IF cpil3
+crkpkodeclcspv	kodtype		DO_CALC_IF cpil5
+g_tgltrn    	kodtgl    	REPLACE
+cKOL        	kodsts    	DO_CALC
+
+cbsnz12		kodtotal	DO_CALC_IF c922
+cbsnz13		kodtotal	DO_CALC_IF c923
+cbsnz14		kodtotal	DO_CALC_IF c924
+
+cbsnz22		kodtotal	DO_CALC_IF c952
+cbsnz23		kodtotal	DO_CALC_IF c953
+cbsnz24		kodtotal	DO_CALC_IF c954
+
+rkpdf3		kodjml		REPLACE
+
+
+
+DBCALCS(daddkod8)
+	DBC_COMMAND	ADD
+	DBC_FILE	kod
+	DBC_MAP		maddkod8
+
+
+
+CALCS()
+cdjoinpkj		djoinpkj == 1
+cBLANKS			BLANKS
+cpkjkode		STRIP(rkpdlr) + "KOL" + STRIP(rkpkdtgk)
+cpkjkodeb		STRIP(rkpdlr) + "KOLB" + STRIP(rkpkdtgk)
+cdjoinkym1		djoinkym == 1
+cz7			rkpkdtgk == "X7" && rkpkodeclc != "BNS"
+cz7b			rkpkdtgk == "X7" && rkpkodeclc == "BNS"
+cpkjkodez7		"ALLKOLZ7"
+cpkjkodez7b		"ALLKOLBZ7"
+cTT			rkpkodeclc == "TT"
+cpkjkodett		STRIP(rkpdlr) + "KOLT" + STRIP(rkpkdtgk)
+cpkjdenda		"ALLKOLDEN"
+cREMEDIAL		rkpkdtgk == "XA" && rkpkodeclc != "BNS"
+cBNSremedial		rkpkdtgk == "XA" && rkpkodeclc == "BNS"
+cpkjrem			STRIP(rkpdlr) + "KOLRE"
+cpkrbrem		STRIP(rkpdlr) + "KOLBRE"
+cPIUTANG		rkptype == "PIUT" 
+cSPVpiutang		rkptype == "SPV"
+cpkjpiut		STRIP(rkpdlr) + "KOLP" + STRIP(rkpkdtgk)
+cpkjspv			STRIP(rkpdlr) + "KOLS" + STRIP(rkpkdtgk)
+
+
+MAP(mmapmap)
+cBLANKS			lrkpkdtgk		DO_CALC
+cBLANKS			lpkjnobbm		DO_CALC
+cBLANKS			lpkjkode		DO_CALC
+c0			lhasil			DO_CALC
+cpkjkode		lpkjkode		DO_CALC_IF cnotbns
+cpkjkodeb		lpkjkode		DO_CALC_IF cbns
+cpkjkodez7		lpkjkode		DO_CALC_IF cz7
+cpkjkodez7b		lpkjkode		DO_CALC_IF cz7b
+cpkjkodett		lpkjkode		DO_CALC_IF cTT
+cpkjdenda		lpkjkode		DO_CALC_IF cDENDA
+cpkjrem			lpkjkode		DO_CALC_IF cREMEDIAL
+cpkrbrem		lpkjkode		DO_CALC_IF cBNSremedial
+cpkjpiut		lpkjkode		DO_CALC_IF cPIUTANG
+cpkjspv			lpkjkode		DO_CALC_IF cSPVpiutang
+
+lpkjnobbm		lpkjnobbm		REPLACE_IF cdjoinpkj
+lkymcabskr		lkymcabskr		REPLACE_IF cdjoinkym1
+
+c0		lbnsz1mg1	DO_CALC
+c0		lbnsz1mg2	DO_CALC
+c0		lbnsz1mg3	DO_CALC
+
+c0		lbnsz2mg1	DO_CALC
+c0		lbnsz2mg2	DO_CALC
+c0		lbnsz2mg3	DO_CALC
+
+c0		lbnsz4mg1	DO_CALC
+c0		lbnsz4mg2	DO_CALC
+c0		lbnsz4mg3	DO_CALC
+
+c0		lbnsz6mg1	DO_CALC
+c0		lbnsz6mg2	DO_CALC
+c0		lbnsz6mg3	DO_CALC
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+CALCS()
+cbonus			rkptype != "PIUT" && rkpkodeclc != "DEN" && rkpkodeclc == "BNS" && rkpkdtgk != "Z2"
+cbonusz2		rkptype != "PIUT" && rkpkodeclc != "DEN" && rkpkodeclc == "BNS" && rkpkdtgk == "Z2"
+cnonbonus		rkptype != "PIUT" && rkpkodeclc != "DEN" && rkpkodeclc != "BNS"
+cpil8			lpil == 8
+cpil7			lpil == 7
+cnon7			lpil < 7
+
+
+
+SPCALCS(sptrans)
+dmapmap
+DO_LIB_IF cnonbonus ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,rkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf2,rkpdf8,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+DO_LIB_IF cbonus ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,rkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf2,rkpdf3,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+DO_LIB_IF cbonusz2 ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,rkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf2,rkpdf4,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+DO_LIB_IF cDENDA ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,rkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf4,rkpdf3,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+DO_LIB_IF cPIUTANG ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,lrkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf2,rkpdf4,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+DO_LIB_IF cSPVpiutang ap_amrmd(lnamaindex,lfldytproses,lrmdtype,lrkpnip,lpkjnobbm,lrmdkode2,lrkpkodeclc,lrkpkdtgk,rkpdf1,rkpdf2,rkpdf4,ltgl1,ltgl3,&lhasil,&lbatasdp,&lakum_unit);
+IF cnon7	daddkod
+IF cpil7	daddkod7
+IF cpil8	daddkod8
+
+POSTING(trans)
+	PST_COMMAND sptrans
+
+END_SCREEN

@@ -1,0 +1,178 @@
+SCREEN 3755  APP_TYPE Proses Potongan Z1Z2
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lthbl		STRING		5
+lrkptype	STRING		15
+lclctype2		STRING		15
+ltypebayar		STRING		11
+l3761			STRING		5
+lkodsts			STRING		3
+lOPEN			STRING		5
+ltotalz1		DFLOAT		8
+ltotalz2		DFLOAT		8
+lCLSD			STRING		5
+lZ1			STRING		11
+lBNS11			STRING		11
+lBNS31			STRING		31
+lrkpdf3			DFLOAT		8
+lrkpdf4			DFLOAT		8
+
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3755              _________________________________                 @DATE
+   ===MEMPROSES MENAMBAH KOD TYPE POTONGAN UNTUK Z1Z2 ======================
+          Pilihan    : __                      Periode Komisi : _____
+          Typebayar  : __________
+          Pencapaian : ________ sd _________ 
+          ___________                          
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+   lthbl		 PROTECT QPROTECT		INPUTRI		2
+   ltypebayar		 NOCHANGE			INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          4
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          5
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		6
+
+
+DEFAULTS(master)
+lrkptype		INIT		"KOLEK1105"
+ltypebayar		DFALT_SCAN	BYR1
+					BYR2
+					BYR3
+					BYR4
+lkodsts			INIT		KO
+l3761			INIT		3761
+lOPEN			INIT		OPEN
+lCLSD			INIT		CLSD
+lZ1			INIT		Z1
+lBNS11			INIT		BNS
+lBNS31			INIT		BNS
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+____________
+
+FIELDS(trans)
+kymnip       	NOCHANGE        INPUTRI 1
+
+CALCS()
+cstr15		((kymjabatan == "KOL" || kymjabatan == "BJTP" || kymjabatan == "REM" || kymjabatan == "CHECK")) && (kymsts != "CLSD" || (kymsts == "CLSD" && kymtglklr >= ltgl1))
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT		cstr15
+
+        SFL_TARGET_GTE
+		kymstsnipidx	lCLSD	{lOPEN}
+
+IMAGE(trans2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+                       __________________   _________ __________ 
+
+FIELDS(trans2)
+kodnobuk       	NOCHANGE        INPUTRI 1
+kodkode		PROTECT SCROLL	INPUTRI	2
+kodkdtgk	PROTECT SCROLL	INPUTRI	3
+
+CALCS()
+ckodok			kodkdtgk == "Z1" || kodkdtgk == "Z2"
+
+SUBFILE(trans2)
+        SFL_LINES(10)
+	SFL_SELECT		ckodok
+
+        SFL_TARGET
+		kodstsscrkod	lkodsts	l3761	kymnip
+
+CALCS()
+ckenapotong		(ltotalz1 == 0 || ltotalz2 == 0) && ltotalz1 + ltotalz2 > 0 && lrkpdf3 != lrkpdf4
+cpotonganz1		-1 * ((ltotalz1 * 40) / 100) + -1 * ((ltotalz2 * 40) / 100)
+cPOT			"POTZ1Z2"
+cPOTONGAN		"POTONGAN"
+ctotalz1isi		kodkdtgk == "Z1" && kodtype != "BNS" && kodtype != "REW" && kodtype != "DEN"
+ctotalz2isi		kodkdtgk == "Z2" && kodtype != "BNS" && kodtype != "REW" && kodtype != "DEN"
+cz1isi			ltotalz1 > 0
+cs2isi			ltotalz2 > 0
+cKO			"KO"
+cZ1			"Z1"
+cZ2			"Z2"
+
+MAP(maddkod)
+l3761			kodscr			REPLACE
+cPOTONGAN		kodnobuk		DO_CALC
+kymnip			kodkode			REPLACE
+cpotonganz1		kodtotal		DO_CALC
+cPOT			kodtype			DO_CALC
+g_tgltrn		kodtgl			REPLACE
+cKO			kodsts			DO_CALC
+cZ1			kodkdtgk		DO_CALC_IF cz1isi
+cZ2			kodkdtgk		DO_CALC_IF cs2isi
+
+
+DBCALCS(daddkod)
+	DBC_COMMAND	ADD
+	DBC_FILE	kod
+	DBC_MAP		maddkod
+
+MAP(mscankod)
+kodtotal		ltotalz1		REPLACE_IF ctotalz1isi
+kodtotal		ltotalz2		REPLACE_IF ctotalz2isi
+
+DBCALCS(dbscankod)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	kodstsscrkod	lkodsts	l3761	kymnip
+	DBC_SUM_MAP	mscankod
+
+
+MAP(mscanrkpz1)
+rkpdf3			lrkpdf3		REPLACE
+rkpdf4			lrkpdf4		REPLACE
+
+DBCALCS(dbscanrkpz1)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptynipdlr	lrkptype kymnip lZ1 lBNS11 lBNS31
+	DBC_SUM_MAP	mscanrkpz1
+
+
+CALCS()
+c0			0
+
+MAP(mmapmap)
+c0			lrkpdf3		DO_CALC
+c0			lrkpdf4		DO_CALC
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+SPCALCS(sptrans)
+dmapmap
+dbscankod
+dbscanrkpz1
+IF ckenapotong daddkod
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+END_SCREEN
