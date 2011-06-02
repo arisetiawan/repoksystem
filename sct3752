@@ -1,0 +1,618 @@
+SCREEN 3752  APP_TYPE Proses Pencapaian Kol
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lOPEN		STRING		5	
+lCLSD		STRING		5	
+lAP		STRING		3
+lthbl		STRING		5
+ltype3		INT2		2
+lrkptype	STRING		15
+lhasil1 	STRING		11
+lhasil2 	STRING		11
+lxjcjmlbawa		DFLOAT		8
+lxjctotfak		DFLOAT		8
+lK			STRING		2
+lcabstr1		STRING		11
+lclctype		STRING		15
+lclctype2		STRING		15
+lrmmtgl			DATE		4
+lfld_clckode		STRING		11
+lfld_clchasilstr		STRING		20
+lxjcbyrdenda		INT2		2
+lF			STRING		2
+ldum			INT2		2
+lkodebaru31		STRING		31
+lkodebaru31pos		STRING		31
+ltotfak			DFLOAT		8
+lrptotfak		DFLOAT		8
+lhasil			DFLOAT		8
+lrphasil		DFLOAT		8
+lBNS11			STRING		11
+lBNS31			STRING		31
+lREW11			STRING		11
+lREW31			STRING		31
+lsimpan			DFLOAT		8
+lcabnoexp		INT2		2
+lpkjkode		STRING		31
+lkategori		STRING		11
+l1			INT2		2
+lkatok			INT2		2
+lRZ1			STRING		11
+lawalz1			DFLOAT		8
+ldenda			DFLOAT		8
+ldenda11		STRING		11
+ldenda31		STRING		31
+lxjctbh2		DFLOAT		8
+lrewMG1			DFLOAT		8
+lrewMG2			DFLOAT		8
+lrewMG3			DFLOAT		8
+lminggu1		DATE		4
+lminggu2		DATE		4
+lminggu3		DATE		4
+ltotMG1			DFLOAT		8
+ltotMG2			DFLOAT		8
+ltotMG3			DFLOAT		8
+lxjcpostgl2		DATE		4
+lZ2			STRING		5
+ldtn_selesaiunit	DFLOAT		8
+ldtn_selesairp		DFLOAT		8
+
+
+
+
+MAP(mjoinpkj)
+pkjnobbm		lkategori		REPLACE
+pkjhrg			lkatok			REPLACE
+
+DBCALCS(djoinpkj)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	pkjkodidx		lpkjkode
+	DBC_MAP		mjoinpkj
+
+DBCALCS(djoinbnsz1z2)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lBNS11	lBNS31
+
+CALCS()
+cblanks			BLANKS
+c0			0
+
+MAP(mjoincab)
+cblanks			lcabstr1	DO_CALC
+cabstr1			lcabstr1	REPLACE
+cabnoexp		lcabnoexp	REPLACE
+
+DBCALCS(djoincab)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx	kymcabskr
+	DBC_MAP		mjoincab
+
+MAP(mjoinxjc)
+c0			lxjcjmlbawa		DO_CALC
+c0			lxjctotfak		DO_CALC
+c0			lxjcbyrdenda		DO_CALC
+c0			lxjctbh2		DO_CALC
+c0			lxjcpostgl2		DO_CALC
+cblanks			lRZ1			DO_CALC
+xjcjmlbawa		lxjcjmlbawa		REPLACE
+xjctotfak		lxjctotfak		REPLACE
+xjcbyrdenda		lxjcbyrdenda		REPLACE
+xjcstr2			lRZ1			REPLACE
+xjctbh2			lxjctbh2		REPLACE
+xjcpostgl2		lxjcpostgl2		REPLACE
+
+DBCALCS(djoinxjc)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	ppmnofak
+	DBC_MAP		mjoinxjc
+
+
+DBCALCS(djoinrkp)
+	DBC_COMMAND	JOIN	
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lhasil1	lkodebaru31
+
+
+DBCALCS(djoinrkppos)
+	DBC_COMMAND	JOIN	
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lhasil2	lkodebaru31pos
+
+
+DBCALCS(djoinREWARD)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lREW11	lREW31
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3752              _________________________________                 @DATE
+   ===Proses pencapaian Kolektor untuk komisian=============================
+          Pilihan    : __                      Periode Komisi : _____
+          Pencapaian : ________ sd _________ 
+	  Reward MG1 : ________ / ________ / ________ 
+          ___________                          
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          2
+   lthbl		 PROTECT QPROTECT		INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          4
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          8
+   lminggu1              PROTECT {DD-MM-YY}          	INPUTRI          5
+   lminggu2              PROTECT {DD-MM-YY}          	INPUTRI          6
+   lminggu3              PROTECT {DD-MM-YY}          	INPUTRI          7
+   
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		9
+
+
+DEFAULTS(master)
+lfld_clckode		INIT		"clckode"
+lfld_clchasilstr	INIT		"clchasilstr2"
+ltype3			INIT		3
+lOPEN			INIT		OPEN
+lCLSD			INIT		CLSD
+ltgl1			INIT		{stsprjpiupr}
+ltgl2			INIT		{g_tgltrn}
+lclctype		INIT		29471104UMR
+lrmmtgl			INIT		{g_tgltrn}
+lAP			INIT		AP
+lK			INIT		K
+lF			INIT		F
+lBNS11			INIT		BNS
+lBNS31			INIT		BNS
+l1			INIT		1
+ldenda11		INIT		DEN
+ldenda31		INIT		DEN
+
+lminggu1		INIT		20110508
+lminggu2		INIT		20110515
+lminggu3		INIT		20110522
+
+lREW11			INIT		REW
+lREW31			INIT		REW
+lZ2			INIT		Z1
+
+
+
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+CALCS()
+c1			1
+cpilih1			lpil == 1
+cpilih2			lpil == 2
+
+cPU1104			"PU1104"
+cPB1104			"PB1104"
+
+MAP(mtype)
+cPU1104			lclctype2		DO_CALC_IF cpilih1
+cPB1104			lclctype2		DO_CALC_IF cpilih2
+
+HOOKS(master)
+BEFORE_INPUT		cur_field=lpil		 DO_LIB ap_thbln(g_tgltrn,lthbl,ltype3);
+AFTER_INPUT		cur_field=lpil		DO_MAP SHOW mtype
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________    _______________
+
+FIELDS(trans)
+        kymnip       	NOCHANGE        INPUTRI 1
+        kymcabskr      	PROTECT		INPUTRI	2 
+
+
+CALCS()
+cdepkolektor		((kymjabatan == "KOL" || kymjabatan == "BJTP" || kymjabatan == "REM" || kymjabatan == "CHECK")) && (kymsts != "CLSD" || (kymsts == "CLSD" && kymtglklr >= ltgl1))
+
+
+
+SUBFILE(trans)
+        SFL_LINES(10)
+        SFL_SELECT      cdepkolektor
+        SFL_TARGET_GTE
+		kymstsnipidx	lCLSD	{lOPEN}
+
+IMAGE(trans2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+                                         _____
+
+FIELDS(trans2)
+clckode       	NOCHANGE        INPUTRI	1
+
+
+CALCS()
+ckodekolektor		clckode != "Z0" && clckode != "ZDEN"
+
+SUBFILE(trans2)
+        SFL_LINES(10)
+        SFL_SELECT      ckodekolektor
+        SFL_TARGET
+		clctypurtidx    lclctype
+
+CALCS()
+cpil1			lpil == 1
+cdjoincab		djoincab == 1
+crkptype1		"KOLEK" + STRIP(lthbl)
+
+MAP(mmapmap)
+crkptype1		lrkptype		DO_CALC_IF cpil1
+lcabstr1		lcabstr1		REPLACE_IF cdjoincab
+c0			lsimpan			DO_CALC
+
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+CALCS()
+cpencapaian		(lrphasil / lrptotfak) * 100
+clebih0b5		lkatok != 5 && lrptotfak > 0 
+clebih0k5		lkatok == 5 && lrptotfak > 0
+ccapairp		((lrptotfak - lrphasil) / lrptotfak ) * 100
+cbkategori5		lkatok != 5
+ckategori5		lkatok == 5
+
+MAP(maddrkp)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lhasil1			rkpkodeclc		REPLACE
+lhasil1     		rkptype2		REPLACE
+cpencapaian		rkpdf2			DO_CALC_IF clebih0b5
+ccapairp		rkpdf2			DO_CALC_IF clebih0k5
+
+
+
+
+DBCALCS(daddrkp)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp
+
+
+
+DBCALCS(djrkp_denda)
+	DBC_COMMAND	JOIN
+	DBC_TARGET      rkptynipdlr     lrkptype        kymnip  clckode ldenda11  ldenda31
+
+CALCS()
+cdf3			rkpdf3 + 1
+cdjoinxjcok		djoinxjc == 1
+cxjctotfak		rkpdf4 + lxjctotfak
+
+
+MAP(mupdrkp)
+cdf3			rkpdf3			DO_CALC
+cxjctotfak		rkpdf4			DO_CALC_IF cdjoinxjcok
+
+
+DBCALCS(dupdrkp)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lhasil1		lkodebaru31
+	DBC_MAP		mupdrkp
+
+
+
+CALCS()
+cdjoinrkp0		djoinrkp == 0 
+carikode		DO_LIB	ap_calcs(lclctype2,lfld_clckode,lfld_clchasilstr,lhasil1,lhasil2);	
+
+MAP(mscanppm)
+carikode		ldum		DO_CALC
+lhasil1			lhasil1		REPLACE
+lhasil2			lhasil2		REPLACE
+lhasil1			lkodebaru31	REPLACE
+lhasil2			lkodebaru31pos	REPLACE
+
+
+DBCALCS(dmapmapitem)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mscanppm
+
+CALCS()
+cdjoinrkppos0		djoinrkppos == 0 && lhasil2 == "POS"
+
+MAP(maddrkppos)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lhasil2			rkpkodeclc		REPLACE
+lhasil2     		rkptype2		REPLACE
+lhasil			rkpdf5			REPLACE_IF cbkategori5
+ltotfak			rkpdf4			REPLACE_IF cbkategori5
+lrphasil		rkpdf5			REPLACE_IF ckategori5
+lrptotfak		rkpdf4			REPLACE_IF ckategori5
+cpencapaian		rkpdf2			DO_CALC_IF clebih0b5
+ccapairp		rkpdf2			DO_CALC_IF clebih0k5
+
+DBCALCS(daddrkppos)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkppos
+
+MAP(mupdrkppos)
+cdf3			rkpdf3			DO_CALC
+
+DBCALCS(dupdrkppos)
+	DBC_COMMAND	UPDATE
+	DBC_TARGET	rkptynipdlr	lrkptype	kymnip	clckode	lhasil2		lkodebaru31pos
+	DBC_MAP		mupdrkppos
+
+CALCS()
+chasil2isi		lhasil2 == "POS"
+
+SPCALCS(sppmitem)
+dmapmapitem
+IF cdjoinrkp0 daddrkp
+dupdrkp
+IF cdjoinrkppos0 daddrkppos
+IF chasil2isi dupdrkppos
+
+CALCS()
+cdjoinxjc1b 		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && djoinxjc == 1 && lxjcbyrdenda == 0 && lkatok != 5
+cdjoinxjc1		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && lkatok != 5
+cdjoinxjc15		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && djoinxjc == 1 
+cdjoinxjc15b		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && djoinxjc == 1 && lxjcbyrdenda == 0 
+
+DBCALCS(dbscanppm)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	ppmklsttptfk	kymnip	lK	lF	clckode2
+	DBC_SPCALCS    	sppmitem 
+
+CALCS()
+cdenda_tghkol		ppmkol == ppmtagih && ppmtglret >= ltgl1 && lxjcbyrdenda > 0 
+
+cmasukMINGGU1		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu1) || (ppmtgtgt > lminggu1 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu1 - 1)) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu1 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+cmasukMINGGU2		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu2) || (ppmtgtgt > lminggu2 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu2 - 1)) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu2 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+cmasukMINGGU3		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu3) || (ppmtgtgt > lminggu3 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu3 - 1)) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu3 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+
+ctotfakMG1		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu1) || (ppmtgtgt > lminggu1 && ppmtgtgt > lminggu1 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu1 - 1)) || ppmstsexp != "Z1")
+ctotfakMG2		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu2) || (ppmtgtgt > lminggu2 && ppmtgtgt > lminggu2 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu2 - 1)) || ppmstsexp != "Z1")
+ctotfakMG3		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") && ((ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu3) || (ppmtgtgt > lminggu3 && ppmtgtgt > lminggu3 && lxjcpostgl2 >= ltgl1 && lxjcpostgl2 < lminggu3 - 1)) || ppmstsexp != "Z1")
+
+
+/********** rumus ini di pakai di bulan april
+
+cmasukMINGGU1		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu1) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu1 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+cmasukMINGGU2		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu2) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu2 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+cmasukMINGGU3		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu3) || ppmstsexp != "Z1") && ppmtgby1 >= ltgl1 && ppmtgby1 <= lminggu3 && ((ppmtgby1 != lxjcpostgl2 && ppmsts != "TRK1") || ppmsts == "TRK1")
+
+
+ctotfakMG1		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu1) || ppmstsexp != "Z1") 
+ctotfakMG2		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu2) || ppmstsexp != "Z1") 
+ctotfakMG3		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >= ltgl1 && ppmtgtgt <= lminggu3) || ppmstsexp != "Z1") 
+
+**********/
+cdtn_bayar		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && lxjcbyrdenda > 0
+cdatun			djoincab == 1 && (lcabnoexp == 13 || lcabnoexp == 14)
+
+
+
+MAP(mscanrekap)
+c1			ltotfak			DO_CALC_IF cdjoinxjc1
+c1			lhasil			DO_CALC_IF cdjoinxjc1b
+
+lxjctotfak		lrptotfak		REPLACE_IF cdjoinxjc15
+lxjctotfak		lrphasil		REPLACE_IF cdjoinxjc15b
+
+c1			lawalz1			DO_CALC
+lxjctbh2		ldenda			REPLACE_IF cdenda_tghkol
+
+
+
+lxjctotfak		ltotMG1			REPLACE_IF ctotfakMG1
+lxjctotfak		ltotMG2			REPLACE_IF ctotfakMG2
+lxjctotfak		ltotMG3			REPLACE_IF ctotfakMG3
+
+lxjctotfak		lrewMG1			REPLACE_IF cmasukMINGGU1
+lxjctotfak		lrewMG2			REPLACE_IF cmasukMINGGU2
+lxjctotfak		lrewMG3			REPLACE_IF cmasukMINGGU3
+
+c1			ldtn_selesaiunit	DO_CALC_IF cdtn_bayar
+lxjctotfak		ldtn_selesairp		REPLACE_IF cdtn_bayar
+
+
+DBCALCS(dbscanppm0)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	ppmklsttptfk    kymnip  lK      lF     	clckode2
+	DBC_SUM_MAP	mscanrekap
+
+MAP(maddz1z2)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lBNS11			rkpkodeclc		REPLACE
+lBNS31     		rkptype2		REPLACE
+cpencapaian		rkpdf2			DO_CALC_IF clebih0b5
+ccapairp		rkpdf2			DO_CALC_IF clebih0k5
+lawalz1			rkpdf4			REPLACE
+
+DBCALCS(daddz1z2)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddz1z2
+
+CALCS()
+cdjoinz1z20		lawalz1 > 0 && djoinbnsz1z2 == 0 && (clckode2 == "Z1" || clckode2 == "Z2")
+cusiaz1z2		lawalz1 > 0 && clckode2 == "Z1" || clckode2 == "Z2"
+cz1			rkpdf3 + lawalz1 
+chanyabns		rkpkodeclc != "POS" && rkpkodeclc == "BNS" && clckode2 == "Z1"
+cusiaz1			clckode2 == "Z1"
+cusiaz2			rkpkodeclc != "POS" && rkpkodeclc == "BNS" && clckode2 == "Z2"
+cz1z2			lawalz1 + lsimpan
+
+MAP(mupdz1z2)
+cz1			rkpdf3		DO_CALC_IF chanyabns
+lawalz1			lsimpan		REPLACE_IF cusiaz1
+cz1z2			rkpdf3		DO_CALC_IF cusiaz2
+
+DBCALCS(dupdz1z2)
+        DBC_COMMAND             UPDATE_RANGE
+        DBC_TARGET             	rkptynipdlr	lrkptype	kymnip	
+        DBC_LAST_TARGET         rkptynipdlr	lrkptype	kymnip	
+        DBC_MAP                 mupdz1z2
+
+CALCS()
+cpkjkode		STRIP(lcabstr1) + "KOL" + STRIP(clckode)
+cdjoinpkj1		djoinpkj == 1
+cdjoinxjc		djoinxjc == 1
+
+
+MAP(mmapmap2)
+cpkjkode		lpkjkode		DO_CALC
+cblanks			lkategori		DO_CALC
+c0			lkatok			DO_CALC
+lkategori		lkategori		REPLACE_IF cdjoinpkj1
+lkatok			lkatok			REPLACE_IF cdjoinpkj1
+lxjctotfak		lxjctotfak		REPLACE_IF cdjoinxjc
+
+c0			ltotMG1			DO_CALC
+c0			ltotMG2			DO_CALC
+c0			ltotMG3			DO_CALC
+
+c0			lrewMG1			DO_CALC
+c0			lrewMG2			DO_CALC
+c0			lrewMG3			DO_CALC
+
+DBCALCS(dmapmap2)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap2
+
+
+MAP(maddrkpz4)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lBNS11			rkpkodeclc		REPLACE
+lBNS31     		rkptype2		REPLACE
+cpencapaian		rkpdf2			DO_CALC_IF clebih0b5
+ccapairp		rkpdf2			DO_CALC_IF clebih0k5
+lawalz1			rkpdf3			REPLACE
+lawalz1			rkpdf4			REPLACE
+
+DBCALCS(daddz4)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkpz4
+
+CALCS()
+/*cusiaz40		lawalz1 > 0 && djoinbnsz1z2 == 0 && (clckode2 == "Z4" || clckode2 == "Z6" || clckode2 == "Z7" || clckode2 == "Z8" || clckode2 == "Z9")*/
+cusiaz40		lawalz1 > 0 && djoinbnsz1z2 == 0 && clckode2 >= "Z4" 
+
+cdjoindenda0		djrkp_denda == 0 && ldenda > 0
+
+
+MAP(maddrkpDENDA)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+ldenda11		rkpkodeclc		REPLACE
+ldenda31     		rkptype2		REPLACE
+ldenda			rkpdf4			REPLACE
+
+
+DBCALCS(dadden)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkpDENDA
+
+
+SPCALCS(sptrans)
+	dmapmap
+
+CALCS()
+cdjoinrew0		(ltotMG1 > 0 || ltotMG2 > 0 || ltotMG3 > 0) && djoinREWARD == 0 && clckode >= "Z1" && clckode <= "Z6"
+capairewMG1		(lrewMG1 / ltotMG1) * 100
+capairewMG2		(lrewMG2 / ltotMG2) * 100
+capairewMG3		(lrewMG3 / ltotMG3) * 100
+
+
+cisimg1			ltotMG1 > 0
+cisimg2			ltotMG2 > 0
+cisimg3			ltotMG3 > 0
+
+
+MAP(maddrkpREWARD)
+lrkptype		rkptype			REPLACE
+kymnip			rkpnip			REPLACE
+lcabstr1		rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+g_tgltrn		rkptgl			REPLACE
+lREW11			rkpkodeclc		REPLACE
+lREW31     		rkptype2		REPLACE
+
+capairewMG1		rkpdf1			DO_CALC_IF cisimg1
+capairewMG2		rkpdf2			DO_CALC_IF cisimg2
+capairewMG3		rkpdf3			DO_CALC_IF cisimg3
+
+lawalz1			rkpdf4			REPLACE
+
+lrewMG1			rkpdf6			REPLACE
+lrewMG2			rkpdf7			REPLACE
+lrewMG3			rkpdf8			REPLACE
+
+
+DBCALCS(daddREWARD)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkpREWARD
+
+CALCS()
+ctypeBYR		rkpkodeclc != "NO" && rkpkodeclc != "REW" && rkpkodeclc != "DEN" && rkpkodeclc != "POS"
+
+
+MAP(mupdrkpdtn)
+ldtn_selesaiunit	rkpdf5		REPLACE_IF ctypeBYR
+ldtn_selesairp		rkpdf6		REPLACE_IF ctypeBYR
+
+
+DBCALCS(dupdrkpdtn)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptynipdlr		lrkptype	kymnip	clckode
+	DBC_LAST_TARGET	rkptynipdlr		lrkptype	kymnip	clckode
+	DBC_MAP		mupdrkpdtn
+
+SPCALCS(sptrans2)
+	dmapmap2
+	dbscanppm0
+	IF cdjoinz1z20 	daddz1z2
+	IF cusiaz1z2	dupdz1z2
+	dbscanppm
+	IF cusiaz40 	daddz4
+	IF cdjoindenda0	dadden
+	IF cdjoinrew0	daddREWARD
+	IF cdatun	dupdrkpdtn
+	
+	
+POSTING(trans)
+PST_COMMAND	sptrans
+
+POSTING(trans2)
+PST_COMMAND	sptrans2
+
+END_SCREEN
