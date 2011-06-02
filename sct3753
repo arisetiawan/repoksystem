@@ -1,0 +1,277 @@
+SCREEN 3753  APP_TYPE Hitung Faktur KOSONG
+SCR_APP_DIR_OK
+SCR_TGLTRN_PASS_OK
+SCR_ENTER_COND cstsISI
+SCR_ENTER_MSG  Yang Boleh RI
+
+CALCS()
+cstsISI   g_grpnam =="RI" || g_grpnam =="ROOT" 
+
+
+LOCAL
+PGM_FIELDS
+ltgl1           DATE            4
+ltgl2           DATE            4
+lpil		INT2		2
+lOPEN		STRING		5	
+lAP		STRING		3
+lthbl		STRING		5
+ltype3		INT2		2
+lrkptype	STRING		15
+lxjcjmlbawa		DFLOAT		8
+lxjctotfak		DFLOAT		8
+lK			STRING		2
+lcabstr1		STRING		11
+lclctype		STRING		15
+lclctype2		STRING		15
+lrmmtgl			DATE		4
+lfld_clckode		STRING		11
+lxjcbyrdenda		INT2		2
+lF			STRING		2
+ltotfak			DFLOAT		8
+lhasil			DFLOAT		8
+lBNS11			STRING		11
+lBNS31			STRING		31
+lsimpan			DFLOAT		8
+lblanks			STRING		11
+lzzz			STRING		11
+lKSG			STRING		11
+lKSG31			STRING		31
+lnipksg			STRING		11
+ltotfakdlr		DFLOAT		8
+ltotfakdlra		DFLOAT		8
+lcapaidlr 		DFLOAT		8
+lcapaidlra		DFLOAT		8
+lalirdlr		DFLOAT		8
+lperalir		DFLOAT		8
+ljmlfaktur		DFLOAT		8
+
+DBCALCS(djoinrkp)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	rkptynipdlr	lrkptype	lnipksg		clckode	lKSG	lKSG31
+
+CALCS()
+cblanks			BLANKS
+
+MAP(mjoincab)
+cblanks			lcabstr1	DO_CALC
+cabstr1			lcabstr1	REPLACE
+
+DBCALCS(djoincab)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	cabnoidx	kymcabskr
+	DBC_MAP		mjoincab
+
+MAP(mjoinxjc)
+xjcjmlbawa		lxjcjmlbawa		REPLACE
+xjctotfak		lxjctotfak		REPLACE
+xjcbyrdenda		lxjcbyrdenda		REPLACE
+
+DBCALCS(djoinxjc)
+	DBC_COMMAND	JOIN
+	DBC_TARGET	xjcnoprcidx	ppmnofak
+	DBC_MAP		mjoinxjc
+
+
+IMAGE(master) {BASE_ROW=1} {FRSFLD_BACKUP} {LSTFLD_ADVANCE}
+SCT3753              _________________________________                 @DATE
+   ===Proses pencapaian Kolektor untuk komisian=============================
+          Pilihan    : __                      Periode Komisi : _____
+          Pencapaian : ________ sd _________ 
+          ___________                          
+
+    1.Kolektor Z1 - Z6
+    2.Kolektor Z6 - Z9
+   =========================================================================
+     NO BUKTI    NO FAKTUR   TGL BYR       TGL JTP    TERLAMBAT
+   =========================================================================
+
+FIELD(master)
+/* Symbol Name   Input Attribute  Output Attribute  Input Order  Special */
+   stspersh              PROTECT                     	RI CENTER        1
+   lpil                  NUMERIC                    	INPUTRI          1
+   lthbl		 PROTECT QPROTECT		INPUTRI		3
+   ltgl1                 ALLCAPS {DD-MM-YY}          	INPUTRI          1
+   ltgl2                 ALLCAPS  {DD-MM-YY}          	INPUTRI          1
+   lclctype2		 ALLCAPS SCROLL			INPUTRI		5
+
+
+DEFAULTS(master)
+lfld_clckode		INIT		"clckode"
+ltype3			INIT		3
+lOPEN			INIT		OPEN
+ltgl1			INIT		{stsprjpiupr}
+ltgl2			INIT		{g_tgltrn}
+lclctype		INIT		29471104UMR
+lrmmtgl			INIT		{g_tgltrn}
+lclctype2		INIT		PU1104
+lAP			INIT		AP
+lK			INIT		K
+lF			INIT		F
+lBNS11			INIT		BNS
+lBNS31			INIT		BNS
+lblanks			INIT		BLANKS
+lzzz			INIT		ZZZ
+lKSG			INIT		KSG
+
+
+EDITS(master)
+pilihan harus di isi lpil MANDATORY
+
+CALCS()
+c1			1
+
+HOOKS(master)
+BEFORE_INPUT		cur_field=lpil		 DO_LIB ap_thbln(g_tgltrn,lthbl,ltype3);
+
+
+IMAGE(trans) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+__________________    
+
+FIELDS(trans)
+cabno       	NOCHANGE        INPUTRI 1
+
+CALCS()
+cstr15			cabnoexp==7 || cabnoexp==1 ||cabnoexp==2 ||cabnoexp==3 ||cabnoexp==4 ||cabnoexp==5 ||cabnoexp==6 ||cabnoexp==12 ||cabnoexp==8 ||cabnoexp==9 ||cabnoexp==10 ||cabnoexp ==11 
+
+SUBFILE(trans)
+        SFL_LINES(10)
+	SFL_SELECT		cstr15
+        SFL_TARGET_GTE
+		cabnoidx	lblanks		{lzzz}
+
+IMAGE(trans2) {NO_CLS} {LSTFLD_ADVANCE} {FRSFLD_BACKUP} {BASE_ROW=8}
+                                         _____
+
+FIELDS(trans2)
+clckode       	NOCHANGE        INPUTRI	1
+
+
+CALCS()
+ckodekolektor		(lpil == 1 && (clckode == "Z1" || clckode == "Z2" || clckode == "Z3" || clckode == "Z4" || clckode == "Z5" || clckode == "Z6")) || (lpil == 2 && (clckode == "Z7" || clckode == "Z8" || clckode == "Z9"))
+
+SUBFILE(trans2)
+        SFL_LINES(10)
+        SFL_SELECT      ckodekolektor
+        SFL_TARGET
+		clctypurtidx    lclctype
+
+CALCS()
+cpil1			lpil == 1
+cdjoincab		djoincab == 1
+crkptype1		"KOLEK" + STRIP(lthbl)
+c0			0
+cnipksg			STRIP(cabno) + "KSG"
+
+MAP(mmapmap)
+crkptype1		lrkptype		DO_CALC_IF cpil1
+lcabstr1		lcabstr1		REPLACE_IF cdjoincab
+c0			lsimpan			DO_CALC
+cnipksg			lnipksg			DO_CALC
+
+DBCALCS(dmapmap)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmap
+
+CALCS()
+cdjoinxjc1 		djoinxjc == 1 && lxjcbyrdenda == 0
+cdjoinxjc		djoinxjc == 1
+cpencapaian		(lhasil / ltotfak) * 100
+clebih0			ltotfak > 0 
+
+MAP(mscanrekap)
+c1			ljmlfaktur		DO_CALC
+/*c1			lhasil			DO_CALC_IF cdjoinxjc1 
+*/
+lxjctotfak		ltotfak			REPLACE_IF cdjoinxjc
+lxjctotfak		lhasil			REPLACE_IF cdjoinxjc1
+
+DBCALCS(dbscanppm0)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	ppmklsttptfk    lnipksg  lK      lF      clckode2
+	DBC_SUM_MAP	mscanrekap
+
+CALCS()
+cdjoinrkp0		djoinrkp == 0
+cbayar			ltotfak - lhasil
+
+MAP(maddrkp0)
+lrkptype		rkptype			REPLACE
+lnipksg			rkpnip			REPLACE
+cabstr1			rkpdlr			REPLACE
+clckode			rkpkdtgk		REPLACE
+lKSG31			rkptype2		REPLACE
+lKSG			rkpkodeclc		REPLACE
+cpencapaian		rkpdf1			DO_CALC_IF clebih0
+cbayar			rkpdf2			DO_CALC
+ljmlfaktur		rkpdf3			REPLACE
+ltotfak			rkpdf4			REPLACE
+lhasil			rkpdf5			REPLACE
+
+DBCALCS(daddrkp0)
+	DBC_COMMAND	ADD
+	DBC_FILE	rkp
+	DBC_MAP		maddrkp0
+
+CALCS()
+cnonbonus		rkpkodeclc != "DEN" && rkpkodeclc != "REW" && rkpkodeclc != "NO" && rkpkodeclc != "BNS" && rkpkodeclc != "POS"
+cnonbonusbyr0		rkpkodeclc != "DEN" && rkpkodeclc != "REW" && rkpkodeclc != "NO" && rkpkodeclc != "BNS" && rkpkodeclc != "BYR0" && rkpkodeclc != "POS"
+
+MAP(mscantotfak)
+rkpdf4			ltotfakdlra		REPLACE_IF cnonbonus
+rkpdf4			lcapaidlra		REPLACE_IF cnonbonusbyr0
+
+DBCALCS(dbscantotfak)
+	DBC_COMMAND	SCANSCAN
+	DBC_TARGET	rkptypdlrtgk	lrkptype	cabno	clckode
+	DBC_SUM_MAP	mscantotfak
+
+CALCS()
+ctotalada		ltotfakdlr > 0
+ccapaidlr		lcapaidlra 
+ctotfakdlr		ltotfakdlra 
+cperalir		(lalirdlr / ltotfakdlr) * 100
+calirdlr		ltotfakdlr - lcapaidlr	
+
+MAP(mmapmapdlr)
+ctotfakdlr		ltotfakdlr		DO_CALC
+ccapaidlr		lcapaidlr		DO_CALC
+calirdlr		lalirdlr		DO_CALC
+cperalir		lperalir		DO_CALC_IF ctotalada
+
+DBCALCS(dmapmapdlr)
+	DBC_COMMAND	MAPMAP
+	DBC_MAP		mmapmapdlr
+
+
+CALCS()
+cnotREW			rkpkodeclc != "REW"
+
+MAP(mupdrkpall)
+ltotfakdlr		rkpdf6			REPLACE_IF cnotREW
+lcapaidlr		rkpdf7			REPLACE_IF cnotREW
+lperalir		rkpdf1			REPLACE_IF cnotREW
+
+DBCALCS(dupdrkpall)
+	DBC_COMMAND	UPDATE_RANGE
+	DBC_TARGET	rkptypdlrtgk	lrkptype	cabno	clckode
+	DBC_LAST_TARGET	rkptypdlrtgk	lrkptype	cabno	clckode
+	DBC_MAP		mupdrkpall
+
+SPCALCS(sptrans)
+	dmapmap
+
+SPCALCS(sptrans2)
+	dbscanppm0
+	IF cdjoinrkp0 daddrkp0		
+	dbscantotfak
+	dmapmapdlr
+	IF cnotdatun dupdrkpall
+
+POSTING(trans)
+PST_COMMAND	sptrans
+
+POSTING(trans2)
+PST_COMMAND	sptrans2
+
+END_SCREEN
