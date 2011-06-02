@@ -403,7 +403,7 @@ ctotfakMG3		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1" && ppmtgtgt >=
 
 **********/
 cdtn_bayar		djoinxjc == 1 && ((ppmstsexp == "Z1" && lRZ1 == "RZ1") || ppmstsexp != "Z1") && lxjcbyrdenda > 0
-cdatun			djoincab == 1 && (lcabnoexp == 13 || lcabnoexp == 14)
+cdatun			djoincab == 1 && lcabnoexp == 13 
 
 
 
