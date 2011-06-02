@@ -597,12 +597,15 @@ DBCALCS(dupdrkpdtn)
 	DBC_LAST_TARGET	rkptynipdlr		lrkptype	kymnip	clckode
 	DBC_MAP		mupdrkpdtn
 
+CALCS()
+cabaikandulu		lpil == 200
+
 SPCALCS(sptrans2)
 	dmapmap2
 	dbscanppm0
 	IF cdjoinz1z20 	daddz1z2
 	IF cusiaz1z2	dupdz1z2
-	dbscanppm
+	IF cabaikandulu dbscanppm
 	IF cusiaz40 	daddz4
 	IF cdjoindenda0	dadden
 	IF cdjoinrew0	daddREWARD
